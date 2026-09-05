@@ -1,2268 +1,1181 @@
-from game.app import TungTangleApp
-
-if __name__ == "__main__":
-    TungTangleApp().run()
-pygame>=2.6.0
-# Tung Tangle game package.
-from dataclasses import dataclass, field
-import random
-
-
-@dataclass
-class Tung:
-    name: str = "Chomper"
-    species: str = "Common Tung"
-    day: int = 1
-    energy: int = 100
-    max_energy: int = 100
-    might: int = 20
-    agility: int = 20
-    power: int = 40
-    wins: int = 0
-    losses: int = 0
-    evolution_level: int = 0
-    inventory: list = field(
-        default_factory=lambda: ["Berry", "Berry"]
-    )
-    allies: list = field(default_factory=list)
-    rivals: list = field(default_factory=list)
-    location: str = "Mossy Grove"
-    xp: int = 0
-    hp: int = 100
-    max_hp: int = 100
-
-    def clamp(self):
-        self.energy = max(
-            0,
-            min(self.energy, self.max_energy)
-        )
-        self.hp = max(
-            0,
-            min(self.hp, self.max_hp)
-        )
-        self.might = max(1, self.might)
-        self.agility = max(1, self.agility)
-        self.power = self.might + self.agility
-        self.xp = max(0, self.xp)
-
-    def add_item(self, item):
-        self.inventory.append(item)
-
-    def use_item(self, item):
-        if item in self.inventory:
-            self.inventory.remove(item)
-            return True
-        return False
-
-    def gain_xp(self, amount):
-        self.xp += max(0, amount)
-
-    def check_evolution(self):
-        thresholds = [0, 80, 150, 250]
-        names = [
-            "Common Tung",
-            "Swift Tung",
-            "Mighty Tung",
-            "Alpha Tung",
-        ]
-
-        changed = False
-
-        while (
-            self.evolution_level < len(thresholds) - 1
-            and self.power >= thresholds[
-                self.evolution_level + 1
-            ]
-        ):
-            self.evolution_level += 1
-            self.species = names[
-                self.evolution_level
-            ]
-
-            self.max_energy += 15
-            self.energy = self.max_energy
-
-            self.max_hp += 15
-            self.hp = self.max_hp
-
-            self.might += 5
-            self.agility += 5
-
-            changed = True
-
-        self.clamp()
-        return changed
-
-
-@dataclass
-class Rival:
-    name: str
-    species: str
-    might: int
-    agility: int
-    personality: str
-    relationship: int = 0
-
-    @property
-    def power(self):
-        return self.might + self.agility
-
-
-@dataclass
-class GameState:
-    player: Tung
-    rivals: list
-    world_seed: int = field(
-        default_factory=lambda:
-        random.randint(1, 999999)
-    )
-    won: bool = False
-    log: list = field(default_factory=list)
-    leaderboard: dict = field(
-        default_factory=dict
-    )
-
-    def add_log(self, message):
-        self.log.insert(0, message)
-        self.log = self.log[:8]
-import random
-
-from game.models import Rival
-
-
-def create_rivals(seed=12345):
-    rng = random.Random(seed)
-
-    names = [
-        "Grumble",
-        "Bongo",
-        "Wobble",
-        "Mango",
-        "Brutus",
-        "Zippy",
-        "Noodle",
-        "Crusher",
-    ]
-
-    personalities = [
-        "Aggressive",
-        "Clever",
-        "Calm",
-        "Chaotic",
-    ]
-
-    rivals = []
-
-    for name in names:
-        might = rng.randint(18, 42)
-        agility = rng.randint(18, 42)
-
-        rivals.append(
-            Rival(
-                name=name,
-                species="Common Tung",
-                might=might,
-                agility=agility,
-                personality=rng.choice(
-                    personalities
-                ),
-            )
-        )
-
-    return rivals
-
-
-def encounter_reaction(rival, player):
-    difference = (
-        player.power -
-        rival.power
-    )
-
-    if difference >= 30:
-        return (
-            f"{rival.name} looks nervous "
-            "around your Tung."
-        )
-
-    if difference <= -30:
-        return (
-            f"{rival.name} seems very "
-            "confident."
-        )
-
-    return (
-        f"{rival.name} sizes you up carefully."
-    )
-
-
-def choose_action(enemy, player, rng=None):
-    rng = rng or random.Random()
-
-    health_ratio = (
-        enemy["hp"] /
-        max(1, enemy["max_hp"])
-    )
-
-    if health_ratio <= 0.30:
-        if rng.random() < 0.45:
-            return "recover"
-
-    enemy_power = (
-        enemy["might"] +
-        enemy["agility"]
-    )
-
-    player_power = (
-        player.might +
-        player.agility
-    )
-
-    if enemy_power >= player_power + 20:
-        return "attack"
-
-    roll = rng.random()
-
-    if roll < 0.70:
-        return "attack"
-
-    if roll < 0.90:
-        return "defend"
-
-    return "recover"
-import random
-
-from game.models import Rival
-
-
-def fight(player, rival, rng=None):
-    rng = rng or random.Random()
-
-    player.energy -= 10
-
-    player_power = (
-        player.might +
-        player.agility
-    )
-
-    rival_power = rival.might + rival.agility
-
-    player_roll = (
-        player_power +
-        rng.randint(0, 25)
-    )
-
-    rival_roll = (
-        rival_power +
-        rng.randint(0, 25)
-    )
-
-    if player_roll >= rival_roll:
-        damage = max(
-            5,
-            player_power // 4 +
-            rng.randint(3, 12)
-        )
-
-        player.hp = min(
-            player.max_hp,
-            player.hp + 8
-        )
-
-        player.wins += 1
-        player.gain_xp(
-            20 + rival_power // 5
-        )
-
-        return (
-            True,
-            f"You defeated {rival.name}! "
-            f"Your Tung dealt {damage} effective damage."
-        )
-
-    damage = max(
-        5,
-        rival_power // 5 +
-        rng.randint(3, 10)
-    )
-
-    player.hp = max(
-        1,
-        player.hp - damage
-    )
-
-    player.losses += 1
-
-    return (
-        False,
-        f"{rival.name} defeated you this time. "
-        f"You took {damage} damage."
-    )
-
-
-def attack(player, enemy, rng=None):
-    rng = rng or random.Random()
-
-    damage = max(
-        1,
-        player.might +
-        rng.randint(2, 8)
-    )
-
-    if rng.random() < 0.10:
-        damage = int(damage * 1.5)
-
-    enemy["hp"] = max(
-        0,
-        enemy["hp"] - damage
-    )
-
-    return damage
-
-
-def enemy_attack(enemy, player, rng=None):
-    rng = rng or random.Random()
-
-    damage = max(
-        1,
-        enemy["might"] +
-        rng.randint(1, 6)
-    )
-
-    player.take_damage(damage)
-
-    return damage
-ITEMS = {
-    "Berry": {
-        "type": "heal",
-        "value": 20,
-        "description": "Restores 20 HP."
-    },
-    "Glow Fruit": {
-        "type": "energy",
-        "value": 25,
-        "description": "Restores 25 energy."
-    },
-    "Might Seed": {
-        "type": "might",
-        "value": 3,
-        "description": "Increases Might by 3."
-    },
-    "Swift Leaf": {
-        "type": "agility",
-        "value": 3,
-        "description": "Increases Agility by 3."
-    },
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tung Tangle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="game">
+
+        <header>
+            <div>
+                <h1>🐸 TUNG TANGLE</h1>
+                <p class="subtitle">Become the ultimate Alpha Tung</p>
+            </div>
+
+            <div class="header-buttons">
+                <button onclick="saveGame()">💾 Save</button>
+                <button onclick="loadGame()">📂 Load</button>
+            </div>
+        </header>
+
+        <main>
+
+            <section id="player-card" class="card">
+                <div class="player-title">
+                    <div>
+                        <h2 id="tung-name">Chomper</h2>
+                        <p id="species">Tung</p>
+                    </div>
+
+                    <div class="level">
+                        LEVEL <span id="level">1</span>
+                    </div>
+                </div>
+
+                <div class="bars">
+
+                    <div class="bar-container">
+                        <span>❤️ HP</span>
+                        <div class="bar">
+                            <div id="hp-bar" class="bar-fill hp"></div>
+                        </div>
+                        <span id="hp-text">100 / 100</span>
+                    </div>
+
+                    <div class="bar-container">
+                        <span>⚡ Energy</span>
+                        <div class="bar">
+                            <div id="energy-bar" class="bar-fill energy"></div>
+                        </div>
+                        <span id="energy-text">100 / 100</span>
+                    </div>
+
+                    <div class="bar-container">
+                        <span>⭐ XP</span>
+                        <div class="bar">
+                            <div id="xp-bar" class="bar-fill xp"></div>
+                        </div>
+                        <span id="xp-text">0 / 100</span>
+                    </div>
+
+                </div>
+
+                <div class="stats">
+                    <div>💪 Power <strong id="power">10</strong></div>
+                    <div>🛡️ Defence <strong id="defence">5</strong></div>
+                    <div>⚡ Speed <strong id="speed">5</strong></div>
+                    <div>🏆 Wins <strong id="wins">0</strong></div>
+                    <div>📅 Day <strong id="day">1</strong></div>
+                    <div>📍 <strong id="location">Tung Town</strong></div>
+                </div>
+            </section>
+
+            <section class="actions">
+
+                <button class="action-button" onclick="explore()">
+                    🌲
+                    <strong>Explore</strong>
+                    <small>Find items & encounters</small>
+                </button>
+
+                <button class="action-button" onclick="train('power')">
+                    💪
+                    <strong>Train Power</strong>
+                    <small>Increase attack strength</small>
+                </button>
+
+                <button class="action-button" onclick="train('defence')">
+                    🛡️
+                    <strong>Train Defence</strong>
+                    <small>Become harder to defeat</small>
+                </button>
+
+                <button class="action-button" onclick="train('speed')">
+                    ⚡
+                    <strong>Train Speed</strong>
+                    <small>Improve your speed</small>
+                </button>
+
+                <button class="action-button" onclick="rest()">
+                    💤
+                    <strong>Rest</strong>
+                    <small>Restore energy & HP</small>
+                </button>
+
+                <button class="action-button" onclick="openFight()">
+                    ⚔️
+                    <strong>Fight</strong>
+                    <small>Battle a rival Tung</small>
+                </button>
+
+                <button class="action-button" onclick="openInventory()">
+                    🎒
+                    <strong>Inventory</strong>
+                    <small>Use your items</small>
+                </button>
+
+                <button class="action-button" onclick="openTravel()">
+                    🗺️
+                    <strong>Travel</strong>
+                    <small>Visit different areas</small>
+                </button>
+
+            </section>
+
+            <section class="card log-card">
+                <h2>📜 Adventure Log</h2>
+                <div id="log"></div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+
+            <button class="close" onclick="closeModal()">✕</button>
+
+            <h2 id="modal-title"></h2>
+
+            <div id="modal-body"></div>
+
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+
+</body>
+</html>
+* {
+    box-sizing: border-box;
 }
 
-
-def consume(player, item):
-    if item not in player.inventory:
-        return False, "You don't have that item."
-
-    data = ITEMS.get(item)
-
-    if not data:
-        return False, "That item doesn't exist."
-
-    item_type = data["type"]
-    value = data["value"]
-
-    if item_type == "heal":
-        old = player.hp
-        player.hp = min(
-            player.max_hp,
-            player.hp + value
-        )
-
-        amount = player.hp - old
-
-        if amount <= 0:
-            return False, "Your HP is already full."
-
-        player.inventory.remove(item)
-
-        return (
-            True,
-            f"You used {item} and restored "
-            f"{amount} HP."
-        )
-
-    if item_type == "energy":
-        old = player.energy
-        player.energy = min(
-            player.max_energy,
-            player.energy + value
-        )
-
-        amount = player.energy - old
-
-        if amount <= 0:
-            return False, "Your energy is already full."
-
-        player.inventory.remove(item)
-
-        return (
-            True,
-            f"You used {item} and restored "
-            f"{amount} energy."
-        )
-
-    if item_type == "might":
-        player.might += value
-        player.inventory.remove(item)
-        player.clamp()
-
-        return (
-            True,
-            f"You used {item}. "
-            f"Might +{value}."
-        )
-
-    if item_type == "agility":
-        player.agility += value
-        player.inventory.remove(item)
-        player.clamp()
-
-        return (
-            True,
-            f"You used {item}. "
-            f"Agility +{value}."
-        )
-
-    return False, "Nothing happened."
-import random
-
-
-LOCATIONS = {
-    "Mossy Grove": {
-        "energy": 0,
-        "description":
-            "A safe forest clearing full of berries."
-    },
-    "Crystal Caves": {
-        "energy": -12,
-        "description":
-            "Glowing caves containing rare items."
-    },
-    "Storm Ridge": {
-        "energy": -18,
-        "description":
-            "A dangerous ridge where strong Tungs roam."
-    },
-    "Sunlit Marsh": {
-        "energy": -8,
-        "description":
-            "Warm wetlands where Swift Tungs gather."
-    },
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+        radial-gradient(circle at top, #29345f, #101322 65%);
+    color: white;
 }
 
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
 
-def explore(state, rng=None):
-    rng = rng or random.Random()
+#game {
+    width: min(1100px, 94%);
+    margin: auto;
+    padding-bottom: 40px;
+}
 
-    player = state.player
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 0;
+    gap: 20px;
+}
 
-    cost = 12 + max(
-        0,
-        -LOCATIONS[
-            player.location
-        ]["energy"]
-    )
+h1 {
+    margin: 0;
+    font-size: 38px;
+    letter-spacing: 2px;
+}
 
-    if player.energy < cost:
-        return (
-            "You're too tired to explore."
-        )
+.subtitle {
+    margin: 5px 0 0;
+    color: #aeb8d9;
+}
 
-    player.energy -= cost
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
 
-    roll = rng.random()
+.header-buttons button {
+    border: 0;
+    padding: 11px 16px;
+    border-radius: 10px;
+    background: #252d4b;
+    color: white;
+    font-weight: bold;
+}
 
-    if roll < 0.30:
-        item = rng.choice([
-            "Berry",
-            "Berry",
-            "Glow Fruit",
-            "Might Seed",
-            "Swift Leaf",
-        ])
+.header-buttons button:hover {
+    background: #364064;
+}
 
-        player.add_item(item)
-        player.gain_xp(10)
+.card {
+    background: rgba(24, 29, 50, 0.95);
+    border: 1px solid #394261;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
 
-        message = (
-            f"You explored {player.location} "
-            f"and found {item}! XP +10."
-        )
+.player-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    elif roll < 0.52:
-        rival = rng.choice(state.rivals)
+.player-title h2 {
+    margin: 0;
+    font-size: 28px;
+}
 
-        message = (
-            f"You encountered {rival.name}, "
-            f"a {rival.personality} Tung."
-        )
+.player-title p {
+    margin: 4px 0 0;
+    color: #9ea9cc;
+}
 
-    else:
-        xp = rng.randint(6, 16)
+.level {
+    background: #303b69;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-weight: bold;
+}
 
-        player.gain_xp(xp)
+.level span {
+    font-size: 24px;
+}
 
-        message = (
-            f"You explored {player.location}. "
-            f"XP +{xp}."
-        )
+.bars {
+    margin-top: 22px;
+    display: grid;
+    gap: 12px;
+}
 
-    player.clamp()
-    state.add_log(message)
+.bar-container {
+    display: grid;
+    grid-template-columns: 90px 1fr 90px;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
 
-    return message
+.bar {
+    height: 14px;
+    background: #101321;
+    border-radius: 20px;
+    overflow: hidden;
+}
 
+.bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
 
-def train(state, stat, rng=None):
-    rng = rng or random.Random()
+.hp {
+    background: #e05252;
+}
 
-    player = state.player
-    cost = 15
+.energy {
+    background: #d8a83e;
+}
 
-    if player.energy < cost:
-        return "You're too tired to train."
+.xp {
+    background: #6d72df;
+}
 
-    player.energy -= cost
+.stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-top: 22px;
+}
 
-    gain = rng.randint(2, 5)
+.stats div {
+    background: #202640;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    color: #aeb8d9;
+}
 
-    if stat == "might":
-        player.might += gain
-        label = "Might"
-    else:
-        player.agility += gain
-        label = "Agility"
+.stats strong {
+    display: block;
+    color: white;
+    font-size: 18px;
+    margin-top: 4px;
+}
 
-    player.gain_xp(12)
-    player.clamp()
+.actions {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
 
-    message = (
-        f"Training complete: {label} +{gain}, "
-        "XP +12."
-    )
+.action-button {
+    min-height: 120px;
+    border: 1px solid #394261;
+    border-radius: 15px;
+    background: #1b2139;
+    color: white;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: transform 0.15s, background 0.15s;
+}
 
-    state.add_log(message)
+.action-button:hover {
+    transform: translateY(-3px);
+    background: #272f4e;
+}
 
-    return message
+.action-button:first-letter {
+    font-size: 28px;
+}
 
+.action-button strong {
+    font-size: 16px;
+}
 
-def rest(state):
-    player = state.player
+.action-button small {
+    color: #919bbd;
+}
 
-    gain = min(
-        player.max_energy -
-        player.energy,
-        35
-    )
+.log-card {
+    margin-top: 20px;
+}
 
-    player.energy += gain
+.log-card h2 {
+    margin-top: 0;
+}
 
-    heal = min(
-        player.max_hp -
-        player.hp,
-        20
-    )
+#log {
+    max-height: 230px;
+    overflow-y: auto;
+}
 
-    player.hp += heal
+.log-entry {
+    padding: 9px 0;
+    border-bottom: 1px solid #303750;
+    color: #c3cae1;
+}
 
-    message = (
-        f"You rested. Energy +{gain}, "
-        f"HP +{heal}."
-    )
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+}
 
-    state.add_log(message)
+.hidden {
+    display: none;
+}
 
-    return message
+.modal-content {
+    width: min(600px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #181d32;
+    border: 1px solid #414b70;
+    border-radius: 18px;
+    padding: 28px;
+    position: relative;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.5);
+}
 
+.close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    border: 0;
+    background: transparent;
+    color: #aeb8d9;
+    font-size: 22px;
+}
 
-def next_day(state):
-    player = state.player
+.modal-content h2 {
+    margin-top: 0;
+}
 
-    player.day += 1
+.modal-button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 13px;
+    border: 0;
+    border-radius: 10px;
+    background: #303b69;
+    color: white;
+    font-weight: bold;
+}
 
-    drain = 4 + player.day // 8
+.modal-button:hover {
+    background: #414e87;
+}
 
-    player.energy -= drain
-    player.clamp()
+.rival {
+    background: #202640;
+    border-radius: 13px;
+    padding: 15px;
+    margin: 10px 0;
+}
 
-    state.add_log(
-        f"Day {player.day} begins. "
-        f"Energy -{drain}."
-    )
-import json
-from pathlib import Path
+.rival h3 {
+    margin: 0 0 5px;
+}
 
-from game.models import (
-    GameState,
-    Tung,
-    Rival,
-)
+.rival p {
+    margin: 4px 0;
+    color: #aeb8d9;
+}
 
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #202640;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 10px 0;
+}
 
-SAVE_DIR = Path("saves")
-SAVE_FILE = SAVE_DIR / "save.json"
+.item button {
+    border: 0;
+    background: #3a477d;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+}
 
+.location {
+    background: #202640;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+}
 
-def save_game(state, path=SAVE_FILE):
-    SAVE_DIR.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+.location button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: 0;
+    border-radius: 8px;
+    background: #3a477d;
+    color: white;
+    font-weight: bold;
+}
 
-    data = {
-        "player": {
-            "name": state.player.name,
-            "species": state.player.species,
-            "day": state.player.day,
-            "energy": state.player.energy,
-            "max_energy":
-                state.player.max_energy,
-            "might": state.player.might,
-            "agility": state.player.agility,
-            "power": state.player.power,
-            "wins": state.player.wins,
-            "losses": state.player.losses,
-            "evolution_level":
-                state.player.evolution_level,
-            "inventory":
-                state.player.inventory,
-            "allies":
-                state.player.allies,
-            "rivals":
-                state.player.rivals,
-            "location":
-                state.player.location,
-            "xp": state.player.xp,
-            "hp": state.player.hp,
-            "max_hp": state.player.max_hp,
-        },
-        "rivals": [
-            {
-                "name": rival.name,
-                "species": rival.species,
-                "might": rival.might,
-                "agility": rival.agility,
-                "personality":
-                    rival.personality,
-                "relationship":
-                    rival.relationship,
-            }
-            for rival in state.rivals
-        ],
-        "world_seed":
-            state.world_seed,
-        "won":
-            state.won,
-        "log":
-            state.log,
-        "leaderboard":
-            state.leaderboard,
+.win {
+    text-align: center;
+    font-size: 22px;
+    padding: 20px;
+}
+
+@media (max-width: 800px) {
+
+    h1 {
+        font-size: 28px;
     }
 
-    with open(
-        path,
-        "w",
-        encoding="utf-8"
-    ) as file:
-        json.dump(
-            data,
-            file,
-            indent=4
-        )
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
+    .stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
 
-def load_game(path=SAVE_FILE):
-    if not Path(path).exists():
-        return None
+    .actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-    try:
-        with open(
-            path,
-            "r",
-            encoding="utf-8"
-        ) as file:
-            data = json.load(file)
+}
 
-    except (
-        OSError,
-        json.JSONDecodeError
-    ):
-        return None
+@media (max-width: 500px) {
 
-    pdata = data.get(
-        "player",
-        {}
-    )
+    .bar-container {
+        grid-template-columns: 70px 1fr;
+    }
 
-    player = Tung(
-        name=pdata.get(
-            "name",
-            "Chomper"
-        ),
-        species=pdata.get(
-            "species",
-            "Common Tung"
-        ),
-        day=pdata.get(
-            "day",
-            1
-        ),
-        energy=pdata.get(
-            "energy",
-            100
-        ),
-        max_energy=pdata.get(
-            "max_energy",
-            100
-        ),
-        might=pdata.get(
-            "might",
-            20
-        ),
-        agility=pdata.get(
-            "agility",
-            20
-        ),
-        power=pdata.get(
-            "power",
-            40
-        ),
-        wins=pdata.get(
-            "wins",
-            0
-        ),
-        losses=pdata.get(
-            "losses",
-            0
-        ),
-        evolution_level=pdata.get(
-            "evolution_level",
-            0
-        ),
-        inventory=pdata.get(
-            "inventory",
-            []
-        ),
-        allies=pdata.get(
-            "allies",
-            []
-        ),
-        rivals=pdata.get(
-            "rivals",
-            []
-        ),
-        location=pdata.get(
-            "location",
-            "Mossy Grove"
-        ),
-        xp=pdata.get(
-            "xp",
-            0
-        ),
-        hp=pdata.get(
-            "hp",
-            100
-        ),
-        max_hp=pdata.get(
-            "max_hp",
-            100
-        ),
-    )
+    .bar-container > span:last-child {
+        grid-column: 2;
+    }
 
-    rivals = []
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-    for data_rival in data.get(
-        "rivals",
-        []
-    ):
-        rivals.append(
-            Rival(
-                name=data_rival.get(
-                    "name",
-                    "Unknown"
-                ),
-                species=data_rival.get(
-                    "species",
-                    "Common Tung"
-                ),
-                might=data_rival.get(
-                    "might",
-                    20
-                ),
-                agility=data_rival.get(
-                    "agility",
-                    20
-                ),
-                personality=data_rival.get(
-                    "personality",
-                    "Neutral"
-                ),
-                relationship=data_rival.get(
-                    "relationship",
-                    0
-                ),
-            )
-        )
+    .actions {
+        grid-template-columns: 1fr;
+    }
 
-    return GameState(
-        player=player,
-        rivals=rivals,
-        world_seed=data.get(
-            "world_seed",
-            1
-        ),
-        won=data.get(
-            "won",
-            False
-        ),
-        log=data.get(
-            "log",
-            []
-        ),
-        leaderboard=data.get(
-            "leaderboard",
-            {}
-        ),
-    )
-import random
-import pygame
+}
+const game = {
+    player: {
+        name: "Chomper",
+        species: "Tung",
+        level: 1,
+        xp: 0,
+        xpNeeded: 100,
 
-from .models import Tung, GameState
-from .ai import create_rivals
-from .world import (
-    LOCATIONS,
-    explore,
-    train,
-    rest,
-    next_day,
-)
-from .combat import fight as do_fight
-from .items import consume
-from .save import save_game, load_game
+        hp: 100,
+        maxHp: 100,
 
-from ui.screens import (
-    MainScreen,
-    InventoryScreen,
-    TungsScreen,
-    FightScreen,
-    StatusScreen,
-    TravelScreen,
-    LeaderboardScreen,
-    MessageScreen,
-)
+        energy: 100,
+        maxEnergy: 100,
 
-from ui.theme import BG
+        power: 10,
+        defence: 5,
+        speed: 5,
 
+        wins: 0,
+        day: 1,
+        location: "Tung Town"
+    },
 
-class TungTangleApp:
-    WIDTH, HEIGHT = 960, 640
+    inventory: {
+        berry: 2,
+        energyDrink: 1,
+        trainingToken: 0
+    },
 
-    def __init__(self):
-        pygame.init()
+    rivals: [],
 
-        pygame.display.set_caption(
-            "Tung Tangle"
-        )
+    log: []
+};
 
-        self.screen = pygame.display.set_mode(
-            (self.WIDTH, self.HEIGHT)
-        )
+const locations = [
+    {
+        name: "Tung Town",
+        description: "A peaceful town where new Tungs begin their journey."
+    },
+    {
+        name: "Mossy Woods",
+        description: "A mysterious forest filled with wild Tungs."
+    },
+    {
+        name: "Tung Mountains",
+        description: "A dangerous mountain region where powerful Tungs train."
+    },
+    {
+        name: "Neon City",
+        description: "A futuristic city packed with competitive Tungs."
+    },
+    {
+        name: "Ancient Ruins",
+        description: "Old ruins said to contain extremely rare items."
+    }
+];
 
-        self.clock = pygame.time.Clock()
+const rivalNames = [
+    "Grumpy",
+    "Bongo",
+    "Mango",
+    "Bonk",
+    "Noodle",
+    "Turbo",
+    "Wobble",
+    "Chunk",
+    "Zappy",
+    "Munch"
+];
 
-        self.fonts = {
-            "title":
-                pygame.font.SysFont(
-                    "arial",
-                    34,
-                    bold=True
-                ),
-            "h1":
-                pygame.font.SysFont(
-                    "arial",
-                    30,
-                    bold=True
-                ),
-            "h2":
-                pygame.font.SysFont(
-                    "arial",
-                    22,
-                    bold=True
-                ),
-            "h3":
-                pygame.font.SysFont(
-                    "arial",
-                    18,
-                    bold=True
-                ),
-            "body":
-                pygame.font.SysFont(
-                    "arial",
-                    17
-                ),
-            "small":
-                pygame.font.SysFont(
-                    "arial",
-                    14
-                ),
-            "emoji":
-                pygame.font.SysFont(
-                    "segoeuisymbol",
-                    58
-                ),
+function random(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function addLog(message) {
+    game.log.unshift(message);
+
+    if (game.log.length > 40) {
+        game.log.pop();
+    }
+
+    updateUI();
+}
+
+function updateUI() {
+    const p = game.player;
+
+    document.getElementById("tung-name").textContent = p.name;
+    document.getElementById("species").textContent = p.species;
+
+    document.getElementById("level").textContent = p.level;
+
+    document.getElementById("power").textContent = p.power;
+    document.getElementById("defence").textContent = p.defence;
+    document.getElementById("speed").textContent = p.speed;
+
+    document.getElementById("wins").textContent = p.wins;
+    document.getElementById("day").textContent = p.day;
+    document.getElementById("location").textContent = p.location;
+
+    document.getElementById("hp-text").textContent =
+        `${p.hp} / ${p.maxHp}`;
+
+    document.getElementById("energy-text").textContent =
+        `${p.energy} / ${p.maxEnergy}`;
+
+    document.getElementById("xp-text").textContent =
+        `${p.xp} / ${p.xpNeeded}`;
+
+    document.getElementById("hp-bar").style.width =
+        `${(p.hp / p.maxHp) * 100}%`;
+
+    document.getElementById("energy-bar").style.width =
+        `${(p.energy / p.maxEnergy) * 100}%`;
+
+    document.getElementById("xp-bar").style.width =
+        `${(p.xp / p.xpNeeded) * 100}%`;
+
+    const log = document.getElementById("log");
+
+    log.innerHTML = game.log
+        .map(entry => `<div class="log-entry">${entry}</div>`)
+        .join("");
+}
+
+function gainXP(amount) {
+    const p = game.player;
+
+    p.xp += amount;
+
+    while (p.xp >= p.xpNeeded) {
+        p.xp -= p.xpNeeded;
+        levelUp();
+    }
+}
+
+function levelUp() {
+    const p = game.player;
+
+    p.level++;
+
+    p.xpNeeded = Math.floor(p.xpNeeded * 1.35);
+
+    p.maxHp += 15;
+    p.hp = p.maxHp;
+
+    p.maxEnergy += 5;
+    p.energy = p.maxEnergy;
+
+    p.power += 3;
+    p.defence += 2;
+    p.speed += 2;
+
+    addLog(`⭐ ${p.name} reached level ${p.level}!`);
+}
+
+function checkEvolution() {
+    const p = game.player;
+
+    if (p.level >= 5 && p.species === "Tung") {
+        p.species = "Mega Tung";
+
+        p.maxHp += 30;
+        p.hp = p.maxHp;
+
+        p.power += 8;
+        p.defence += 5;
+        p.speed += 4;
+
+        addLog(`✨ EVOLUTION! ${p.name} evolved into Mega Tung!`);
+    }
+
+    if (p.level >= 10 && p.species === "Mega Tung") {
+        p.species = "Alpha Tung";
+
+        p.maxHp += 50;
+        p.hp = p.maxHp;
+
+        p.power += 15;
+        p.defence += 10;
+        p.speed += 8;
+
+        addLog(`👑 FINAL EVOLUTION! ${p.name} became an Alpha Tung!`);
+    }
+}
+
+function spendEnergy(amount) {
+    const p = game.player;
+
+    if (p.energy < amount) {
+        addLog("⚠️ You don't have enough energy.");
+        return false;
+    }
+
+    p.energy -= amount;
+    return true;
+}
+
+function explore() {
+    if (!spendEnergy(10)) {
+        return;
+    }
+
+    const roll = random(1, 100);
+
+    if (roll <= 35) {
+        const xp = random(15, 30);
+
+        gainXP(xp);
+
+        addLog(`🌲 You explored the area and gained ${xp} XP.`);
+    }
+
+    else if (roll <= 55) {
+        game.inventory.berry++;
+
+        addLog("🍓 You found a Berry!");
+    }
+
+    else if (roll <= 70) {
+        game.inventory.energyDrink++;
+
+        addLog("🥤 You found an Energy Drink!");
+    }
+
+    else if (roll <= 85) {
+        game.inventory.trainingToken++;
+
+        addLog("🎟️ You found a Training Token!");
+    }
+
+    else {
+        const rival = createRival();
+
+        addLog(`👀 A wild Tung named ${rival.name} appeared!`);
+
+        setTimeout(() => {
+            openFight(rival);
+        }, 100);
+    }
+
+    checkEvolution();
+    updateUI();
+}
+
+function train(stat) {
+    if (!spendEnergy(15)) {
+        return;
+    }
+
+    const p = game.player;
+
+    let increase = random(1, 3);
+
+    if (game.inventory.trainingToken > 0) {
+        increase += 2;
+        game.inventory.trainingToken--;
+
+        addLog("🎟️ Training Token boosted your training!");
+    }
+
+    p[stat] += increase;
+
+    gainXP(10);
+
+    const names = {
+        power: "Power",
+        defence: "Defence",
+        speed: "Speed"
+    };
+
+    addLog(`💪 ${names[stat]} increased by ${increase}.`);
+
+    checkEvolution();
+    updateUI();
+}
+
+function rest() {
+    const p = game.player;
+
+    p.energy = Math.min(p.maxEnergy, p.energy + 35);
+    p.hp = Math.min(p.maxHp, p.hp + 25);
+
+    addLog("💤 You rested and recovered.");
+
+    updateUI();
+}
+
+function createRival() {
+    const p = game.player;
+
+    const difficulty = Math.max(0, p.level - 1);
+
+    return {
+        name: rivalNames[random(0, rivalNames.length - 1)],
+        level: Math.max(1, p.level + random(-1, 2)),
+        power: random(8, 13) + difficulty * 2,
+        defence: random(3, 8) + difficulty,
+        speed: random(3, 8) + difficulty,
+        hp: random(60, 100) + difficulty * 12
+    };
+}
+
+function createRivals() {
+    game.rivals = [];
+
+    for (let i = 0; i < 5; i++) {
+        game.rivals.push(createRival());
+    }
+}
+
+function openFight(specificRival = null) {
+    const rivals = specificRival
+        ? [specificRival]
+        : [createRival(), createRival(), createRival()];
+
+    let html = "";
+
+    rivals.forEach((rival, index) => {
+
+        html += `
+            <div class="rival">
+                <h3>🐸 ${rival.name}</h3>
+
+                <p>Level ${rival.level}</p>
+                <p>❤️ HP: ${rival.hp}</p>
+                <p>💪 Power: ${rival.power}</p>
+                <p>🛡️ Defence: ${rival.defence}</p>
+                <p>⚡ Speed: ${rival.speed}</p>
+
+                <button
+                    class="modal-button"
+                    onclick='startFight(${JSON.stringify(rival)})'>
+                    ⚔️ Fight
+                </button>
+            </div>
+        `;
+    });
+
+    showModal("⚔️ Choose Your Opponent", html);
+}
+
+function startFight(rival) {
+    closeModal();
+
+    if (!spendEnergy(10)) {
+        return;
+    }
+
+    const p = game.player;
+
+    let playerHP = p.hp;
+    let enemyHP = rival.hp;
+
+    let rounds = 0;
+    let battleLog = [];
+
+    while (playerHP > 0 && enemyHP > 0 && rounds < 30) {
+        rounds++;
+
+        const playerFirst =
+            p.speed >= rival.speed
+                ? true
+                : Math.random() < 0.5;
+
+        if (playerFirst) {
+            const damage =
+                Math.max(1, p.power + random(-3, 4) - Math.floor(rival.defence / 2));
+
+            enemyHP -= damage;
+
+            battleLog.push(`💥 You dealt ${damage} damage.`);
+
+            if (enemyHP <= 0) {
+                break;
+            }
+
+            const enemyDamage =
+                Math.max(1, rival.power + random(-3, 4) - Math.floor(p.defence / 2));
+
+            playerHP -= enemyDamage;
+
+            battleLog.push(`💢 ${rival.name} dealt ${enemyDamage} damage.`);
         }
 
-        self.rng = random.Random()
-        self.locations = LOCATIONS
+        else {
+            const enemyDamage =
+                Math.max(1, rival.power + random(-3, 4) - Math.floor(p.defence / 2));
 
-        self.state = self.new_game()
-        self.screen_obj = MainScreen(self)
+            playerHP -= enemyDamage;
 
-    def new_game(self):
-        player = Tung(
-            name="Chomper"
-        )
+            battleLog.push(`💢 ${rival.name} dealt ${enemyDamage} damage.`);
 
-        state = GameState(
-            player=player,
-            rivals=create_rivals(12345)
-        )
+            if (playerHP <= 0) {
+                break;
+            }
 
-        state.add_log(
-            "Welcome to Tung Tangle. "
-            "Your journey begins."
-        )
+            const damage =
+                Math.max(1, p.power + random(-3, 4) - Math.floor(rival.defence / 2));
 
-        return state
+            enemyHP -= damage;
 
-    def set_screen(self, name):
-        mapping = {
-            "main": MainScreen,
-            "inventory": InventoryScreen,
-            "tungs": TungsScreen,
-            "fight": FightScreen,
-            "status": StatusScreen,
-            "travel": TravelScreen,
-            "leaderboard":
-                LeaderboardScreen,
+            battleLog.push(`💥 You dealt ${damage} damage.`);
+        }
+    }
+
+    if (playerHP > 0) {
+        const xp = random(25, 45);
+
+        p.wins++;
+        p.hp = Math.max(1, playerHP);
+
+        gainXP(xp);
+
+        addLog(
+            `🏆 Victory against ${rival.name}! +${xp} XP.`
+        );
+
+        checkEvolution();
+
+        if (p.wins >= 5 && p.level >= 10) {
+            showVictory();
         }
 
-        self.screen_obj = mapping[name](self)
-
-    def do_explore(self):
-        if self.state.player.energy < 10:
-            self.set_message(
-                "Too Tired",
-                "You need at least 10 energy to explore."
-            )
-            return
-
-        message = explore(
-            self.state,
-            self.rng
-        )
-
-        self.after_action(message)
-
-    def do_train(self, stat):
-        message = train(
-            self.state,
-            stat,
-            self.rng
-        )
-
-        self.after_action(message)
-
-    def do_rest(self):
-        message = rest(
-            self.state
-        )
-
-        self.after_action(message)
-
-    def use_item(self, item):
-        ok, message = consume(
-            self.state.player,
-            item
-        )
-
-        if ok:
-            self.state.add_log(message)
-            self.after_action(message)
-        else:
-            self.set_message(
-                "Inventory",
-                message
-            )
-
-    def fight(self, rival):
-        if self.state.player.energy < 10:
-            self.set_message(
-                "Too Tired",
-                "Rest before fighting."
-            )
-            return
-
-        won, message = do_fight(
-            self.state.player,
-            rival,
-            self.rng
-        )
-
-        self.state.add_log(message)
-
-        if (
-            won
-            and self.state.player.wins >= 5
-            and self.state.player.evolution_level >= 3
-        ):
-            self.state.won = True
-
-            score = (
-                self.state.player.power
-                + self.state.player.wins * 25
-                + self.state.player.day * 5
-            )
-
-            self.state.leaderboard[
-                self.state.player.name
-            ] = max(
-                score,
-                self.state.leaderboard.get(
-                    self.state.player.name,
-                    0
-                )
-            )
-
-            self.set_message(
-                "ALPHA TUNG!",
-                "You defeated enough rivals "
-                "and became the Alpha!\n"
-                f"Score: {score}"
-            )
-        else:
-            self.after_action(message)
-
-    def travel(self, location):
-        self.state.player.location = location
-
-        self.state.player.energy = max(
-            0,
-            self.state.player.energy - 5
-        )
-
-        message = (
-            f"You travelled to {location}. "
-            "Energy -5."
-        )
-
-        self.state.add_log(message)
-
-        self.after_action(message)
-
-    def next_day(self):
-        next_day(self.state)
-
-        self.after_action(
-            f"Day {self.state.player.day} "
-            "has begun."
-        )
+    } else {
+        p.hp = Math.max(1, Math.floor(p.maxHp * 0.25));
+
+        addLog(`❌ ${rival.name} defeated you. You barely escaped.`);
+    }
+
+    updateUI();
+
+    setTimeout(() => {
+        showBattleReport(rival, battleLog, playerHP > 0);
+    }, 100);
+}
 
-    def after_action(self, message):
-        evolved = (
-            self.state.player.check_evolution()
-        )
+function showBattleReport(rival, battleLog, won) {
+    const result = won
+        ? "🏆 VICTORY!"
+        : "❌ DEFEAT";
 
-        if evolved:
-            self.state.add_log(
-                "Evolution! Your Tung is now "
-                f"a {self.state.player.species}."
-            )
-
-            self.set_message(
-                "EVOLUTION!",
-                f"{self.state.player.name} "
-                f"evolved into "
-                f"{self.state.player.species}!"
-            )
-
-        elif self.state.player.energy <= 0:
-            self.state.player.energy = 10
+    let html = `
+        <div class="win">
+            <h2>${result}</h2>
+            <p>Battle against <strong>${rival.name}</strong></p>
+        </div>
+    `;
 
-            self.set_message(
-                "Exhausted",
-                "Your Tung is exhausted. "
-                "Emergency recovery restored "
-                "10 energy."
-            )
-
-        else:
-            self.set_screen("main")
-
-    def set_message(self, title, message):
-        self.screen_obj = MessageScreen(
-            self,
-            title,
-            message
-        )
-
-    def save(self):
-        save_game(self.state)
-
-        self.set_message(
-            "Saved",
-            "Your game has been saved to "
-            "saves/save.json."
-        )
-
-    def load(self):
-        loaded = load_game()
-
-        if loaded:
-            self.state = loaded
-            self.set_screen("main")
-        else:
-            self.set_message(
-                "Load",
-                "No save file exists yet."
-            )
-
-    def run(self):
-        running = True
-
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.set_screen("main")
-
-                    elif event.key == pygame.K_F5:
-                        self.save()
-
-                    elif event.key == pygame.K_F9:
-                        self.load()
-
-                    elif event.key == pygame.K_q:
-                        running = False
-
-                self.screen_obj.handle(event)
-
-            self.screen.fill(BG)
-
-            self.screen_obj.draw(
-                self.screen
-            )
-
-            pygame.display.flip()
-
-            self.clock.tick(60)
-
-        pygame.quit()
-# Tung Tangle UI package.
-import pygame
-
-
-BG = (14, 18, 24)
-PANEL = (25, 31, 42)
-PANEL_LIGHT = (38, 46, 61)
-
-WHITE = (245, 245, 245)
-GREY = (160, 168, 180)
-
-GREEN = (70, 210, 120)
-RED = (225, 80, 80)
-BLUE = (75, 145, 235)
-YELLOW = (240, 200, 70)
-PURPLE = (170, 100, 230)
-ORANGE = (240, 145, 60)
-
-
-def font(size, bold=False):
-    return pygame.font.SysFont(
-        "arial",
-        size,
-        bold=bold
-    )
-
-
-def text(
-    surface,
-    value,
-    position,
-    size=17,
-    colour=WHITE,
-    bold=False,
-):
-    rendered = font(
-        size,
-        bold
-    ).render(
-        str(value),
-        True,
-        colour
-    )
-
-    surface.blit(
-        rendered,
-        position
-    )
-
-
-def centered(
-    surface,
-    value,
-    y,
-    size=17,
-    colour=WHITE,
-    bold=False,
-):
-    rendered = font(
-        size,
-        bold
-    ).render(
-        str(value),
-        True,
-        colour
-    )
-
-    x = (
-        surface.get_width()
-        - rendered.get_width()
-    ) // 2
-
-    surface.blit(
-        rendered,
-        (x, y)
-    )
-
-
-def panel(surface, rect):
-    pygame.draw.rect(
-        surface,
-        PANEL,
-        rect,
-        border_radius=12
-    )
-
-
-def bar(
-    surface,
-    rect,
-    value,
-    maximum,
-    colour,
-):
-    pygame.draw.rect(
-        surface,
-        (55, 62, 75),
-        rect,
-        border_radius=6
-    )
-
-    if maximum <= 0:
-        return
-
-    ratio = max(
-        0,
-        min(
-            1,
-            value / maximum
-        )
-    )
-
-    width = int(
-        rect.width * ratio
-    )
-
-    if width > 0:
-        pygame.draw.rect(
-            surface,
-            colour,
-            pygame.Rect(
-                rect.x,
-                rect.y,
-                width,
-                rect.height
-            ),
-            border_radius=6
-        )
-import pygame
-
-from ui.theme import (
-    WHITE,
-    PANEL_LIGHT,
-    font,
-)
-
-
-class Button:
-    def __init__(
-        self,
-        rect,
-        label,
-        callback,
-    ):
-        self.rect = pygame.Rect(rect)
-        self.label = label
-        self.callback = callback
-        self.hover = False
-
-    def handle(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            self.hover = self.rect.collidepoint(
-                event.pos
-            )
-
-        elif (
-            event.type == pygame.MOUSEBUTTONDOWN
-            and event.button == 1
-            and self.rect.collidepoint(event.pos)
-        ):
-            self.callback()
-            return True
-
-        return False
-
-    def draw(self, surface):
-        colour = (
-            (65, 110, 190)
-            if self.hover
-            else PANEL_LIGHT
-        )
-
-        pygame.draw.rect(
-            surface,
-            colour,
-            self.rect,
-            border_radius=9
-        )
-
-        rendered = font(
-            16,
-            True
-        ).render(
-            self.label,
-            True,
-            WHITE
-        )
-
-        surface.blit(
-            rendered,
-            rendered.get_rect(
-                center=self.rect.center
-            )
-        )
-import pygame
-
-from ui.theme import (
-    BG,
-    PANEL,
-    PANEL_LIGHT,
-    WHITE,
-    GREY,
-    GREEN,
-    RED,
-    BLUE,
-    YELLOW,
-    PURPLE,
-    ORANGE,
-    font,
-    text,
-    centered,
-    panel,
-    bar,
-)
-from ui.components import Button
-
-
-class BaseScreen:
-    def __init__(self, app):
-        self.app = app
-        self.buttons = []
-
-    def handle(self, event):
-        for button in self.buttons:
-            if button.handle(event):
-                return
-
-        if event.type == pygame.KEYDOWN:
-            self.key(event.key)
-
-    def key(self, key):
-        pass
-
-    def draw_buttons(self, surface):
-        for button in self.buttons:
-            button.draw(surface)
-
-
-class MainScreen(BaseScreen):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.buttons = [
-            Button(
-                (35, 560, 120, 45),
-                "Explore",
-                app.do_explore,
-            ),
-            Button(
-                (165, 560, 120, 45),
-                "Train",
-                lambda:
-                    app.do_train("might"),
-            ),
-            Button(
-                (295, 560, 120, 45),
-                "Rest",
-                app.do_rest,
-            ),
-            Button(
-                (425, 560, 120, 45),
-                "Inventory",
-                lambda:
-                    app.set_screen("inventory"),
-            ),
-            Button(
-                (555, 560, 120, 45),
-                "Tungs",
-                lambda:
-                    app.set_screen("tungs"),
-            ),
-            Button(
-                (685, 560, 120, 45),
-                "Travel",
-                lambda:
-                    app.set_screen("travel"),
-            ),
-            Button(
-                (815, 560, 120, 45),
-                "Status",
-                lambda:
-                    app.set_screen("status"),
-            ),
-        ]
-
-    def key(self, key):
-        if key == pygame.K_e:
-            self.app.do_explore()
-        elif key == pygame.K_t:
-            self.app.do_train("might")
-        elif key == pygame.K_r:
-            self.app.do_rest()
-        elif key == pygame.K_i:
-            self.app.set_screen("inventory")
-        elif key == pygame.K_f:
-            self.app.set_screen("fight")
-        elif key == pygame.K_s:
-            self.app.save()
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        centered(
-            surface,
-            "TUNG TANGLE",
-            25,
-            36,
-            WHITE,
-            True,
-        )
-
-        centered(
-            surface,
-            "Train • Explore • Evolve",
-            70,
-            16,
-            GREY,
-        )
-
-        player = self.app.state.player
-
-        panel(
-            surface,
-            pygame.Rect(
-                30,
-                120,
-                900,
-                400
-            )
-        )
-
-        text(
-            surface,
-            player.name,
-            (60, 145),
-            28,
-            WHITE,
-            True,
-        )
-
-        text(
-            surface,
-            player.species,
-            (60, 180),
-            18,
-            PURPLE,
-            True,
-        )
-
-        text(
-            surface,
-            f"Day {player.day}",
-            (760, 150),
-            17,
-            GREY,
-        )
-
-        text(
-            surface,
-            "HP",
-            (60, 225),
-            15,
-            GREY,
-        )
-
-        bar(
-            surface,
-            pygame.Rect(
-                110,
-                225,
-                300,
-                18
-            ),
-            player.hp,
-            player.max_hp,
-            RED,
-        )
-
-        text(
-            surface,
-            f"{player.hp}/{player.max_hp}",
-            (420, 223),
-            15,
-            WHITE,
-        )
-
-        text(
-            surface,
-            "Energy",
-            (60, 270),
-            15,
-            GREY,
-        )
-
-        bar(
-            surface,
-            pygame.Rect(
-                110,
-                270,
-                300,
-                18
-            ),
-            player.energy,
-            player.max_energy,
-            BLUE,
-        )
-
-        text(
-            surface,
-            f"{player.energy}/{player.max_energy}",
-            (420, 268),
-            15,
-            WHITE,
-        )
-
-        text(
-            surface,
-            f"Might: {player.might}",
-            (60, 325),
-            20,
-            WHITE,
-        )
-
-        text(
-            surface,
-            f"Agility: {player.agility}",
-            (260, 325),
-            20,
-            WHITE,
-        )
-
-        text(
-            surface,
-            f"Power: {player.power}",
-            (460, 325),
-            20,
-            YELLOW,
-            True,
-        )
-
-        text(
-            surface,
-            f"Wins: {player.wins}",
-            (60, 375),
-            18,
-            GREEN,
-        )
-
-        text(
-            surface,
-            f"Losses: {player.losses}",
-            (200, 375),
-            18,
-            RED,
-        )
-
-        text(
-            surface,
-            f"XP: {player.xp}",
-            (340, 375),
-            18,
-            BLUE,
-        )
-
-        text(
-            surface,
-            f"Location: {player.location}",
-            (60, 425),
-            18,
-            ORANGE,
-        )
-
-        text(
-            surface,
-            "Recent activity",
-            (560, 225),
-            19,
-            WHITE,
-            True,
-        )
-
-        y = 260
-
-        for message in self.app.state.log[:6]:
-            text(
-                surface,
-                message[:42],
-                (560, y),
-                13,
-                GREY,
-            )
-            y += 34
-
-        self.draw_buttons(surface)
-
-
-class InventoryScreen(BaseScreen):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.buttons = [
-            Button(
-                (30, 560, 140, 45),
-                "Back",
-                lambda:
-                    app.set_screen("main"),
-            )
-        ]
-
-        self.items = list(
-            dict.fromkeys(
-                app.state.player.inventory
-            )
-        )
-
-        for index, item in enumerate(
-            self.items
-        ):
-            y = 150 + index * 55
-
-            self.buttons.append(
-                Button(
-                    (500, y, 250, 42),
-                    f"Use {item}",
-                    lambda item=item:
-                        app.use_item(item),
-                )
-            )
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        centered(
-            surface,
-            "INVENTORY",
-            30,
-            34,
-            WHITE,
-            True,
-        )
-
-        player = self.app.state.player
-
-        panel(
-            surface,
-            pygame.Rect(
-                80,
-                120,
-                800,
-                390
-            )
-        )
-
-        if not player.inventory:
-            centered(
-                surface,
-                "Your inventory is empty.",
-                250,
-                20,
-                GREY,
-            )
-        else:
-            counts = {}
-
-            for item in player.inventory:
-                counts[item] = (
-                    counts.get(item, 0) + 1
-                )
-
-            y = 155
-
-            for item, amount in counts.items():
-                text(
-                    surface,
-                    f"{item} x{amount}",
-                    (130, y),
-                    21,
-                    WHITE,
-                    True,
-                )
-
-                y += 55
-
-        self.draw_buttons(surface)
-
-
-class TungsScreen(BaseScreen):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.buttons = [
-            Button(
-                (30, 560, 140, 45),
-                "Back",
-                lambda:
-                    app.set_screen("main"),
-            ),
-            Button(
-                (180, 560, 160, 45),
-                "Fight",
-                lambda:
-                    app.set_screen("fight"),
-            )
-        ]
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        centered(
-            surface,
-            "TUNG RIVALS",
-            30,
-            34,
-            WHITE,
-            True,
-        )
-
-        y = 110
-
-        for rival in self.app.state.rivals:
-            panel(
-                surface,
-                pygame.Rect(
-                    80,
-                    y,
-                    800,
-                    50
-                )
-            )
-
-            text(
-                surface,
-                rival.name,
-                (100, y + 12),
-                18,
-                WHITE,
-                True,
-            )
-
-            text(
-                surface,
-                rival.species,
-                (300, y + 12),
-                16,
-                PURPLE,
-            )
-
-            text(
-                surface,
-                f"Power {rival.power}",
-                (500, y + 12),
-                16,
-                YELLOW,
-            )
-
-            text(
-                surface,
-                rival.personality,
-                (700, y + 12),
-                15,
-                GREY,
-            )
-
-            y += 60
-
-        self.draw_buttons(surface)
-
-
-class FightScreen(BaseScreen):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.buttons = []
-
-        y = 130
-
-        for rival in app.state.rivals:
-            self.buttons.append(
-                Button(
-                    (550, y, 300, 45),
-                    f"Fight {rival.name}",
-                    lambda rival=rival:
-                        app.fight(rival),
-                )
-            )
-
-            y += 55
-
-        self.buttons.append(
-            Button(
-                (30, 560, 140, 45),
-                "Back",
-                lambda:
-                    app.set_screen("main"),
-            )
-        )
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        centered(
-            surface,
-            "CHOOSE A RIVAL",
-            30,
-            34,
-            WHITE,
-            True,
-        )
-
-        player = self.app.state.player
-
-        panel(
-            surface,
-            pygame.Rect(
-                80,
-                120,
-                400,
-                380
-            )
-        )
-
-        text(
-            surface,
-            player.name,
-            (110, 150),
-            25,
-            WHITE,
-            True,
-        )
-
-        text(
-            surface,
-            player.species,
-            (110, 190),
-            18,
-            PURPLE,
-        )
-
-        text(
-            surface,
-            f"Power: {player.power}",
-            (110, 235),
-            20,
-            YELLOW,
-        )
-
-        text(
-            surface,
-            f"Energy: {player.energy}",
-            (110, 275),
-            18,
-            BLUE,
-        )
-
-        text(
-            surface,
-            f"Wins: {player.wins}",
-            (110, 320),
-            18,
-            GREEN,
-        )
-
-        self.draw_buttons(surface)
-
-
-class StatusScreen(BaseScreen):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.buttons = [
-            Button(
-                (30, 560, 140, 45),
-                "Back",
-                lambda:
-                    app.set_screen("main"),
-            ),
-            Button(
-                (180, 560, 140, 45),
-                "Save",
-                app.save,
-            ),
-        ]
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        centered(
-            surface,
-            "TUNG STATUS",
-            30,
-            34,
-            WHITE,
-            True,
-        )
-
-        p = self.app.state.player
-
-        panel(
-            surface,
-            pygame.Rect(
-                100,
-                120,
-                760,
-                390
-            )
-        )
-
-        stats = [
-            ("Name", p.name, WHITE),
-            ("Species", p.species, PURPLE),
-            ("Day", p.day, WHITE),
-            ("HP", f"{p.hp}/{p.max_hp}", RED),
-            ("Energy",
-             f"{p.energy}/{p.max_energy}",
-             BLUE),
-            ("Might", p.might, WHITE),
-            ("Agility", p.agility, WHITE),
-            ("Power", p.power, YELLOW),
-            ("XP", p.xp, BLUE),
-            ("Wins", p.wins, GREEN),
-            ("Losses", p.losses, RED),
-            ("Location", p.location, ORANGE),
-        ]
-
-        y = 150
-
-        for label, value, colour in stats:
-            text(
-                surface,
-                f"{label}:",
-                (150, y),
-                18,
-                GREY,
-            )
-
-            text(
-                surface,
-                value,
-                (330, y),
-                18,
-                colour,
-                True,
-            )
-
-            y += 28
-
-        self.draw_buttons(surface)
-
-
-class TravelScreen(BaseScreen):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.buttons = []
-
-        locations = list(
-            app.locations.keys()
-        )
-
-        for index, location in enumerate(
-            locations
-        ):
-            self.buttons.append(
-                Button(
-                    (
-                        500,
-                        130 + index * 65,
-                        350,
-                        48
-                    ),
-                    location,
-                    lambda location=location:
-                        app.travel(location),
-                )
-            )
-
-        self.buttons.append(
-            Button(
-                (30, 560, 140, 45),
-                "Back",
-                lambda:
-                    app.set_screen("main"),
-            )
-        )
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        centered(
-            surface,
-            "TRAVEL",
-            30,
-            34,
-            WHITE,
-            True,
-        )
-
-        panel(
-            surface,
-            pygame.Rect(
-                80,
-                120,
-                380,
-                390
-            )
-        )
-
-        text(
-            surface,
-            "Choose a location",
-            (115, 155),
-            23,
-            WHITE,
-            True,
-        )
-
-        y = 210
-
-        for name, data in self.app.locations.items():
-            text(
-                surface,
-                name,
-                (115, y),
-                18,
-                ORANGE,
-            )
-
-            text(
-                surface,
-                data["description"],
-                (115, y + 25),
-                13,
-                GREY,
-            )
-
-            y += 75
-
-        self.draw_buttons(surface)
-
-
-class LeaderboardScreen(BaseScreen):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.buttons = [
-            Button(
-                (30, 560, 140, 45),
-                "Back",
-                lambda:
-                    app.set_screen("main"),
-            )
-        ]
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        centered(
-            surface,
-            "LEADERBOARD",
-            30,
-            34,
-            WHITE,
-            True,
-        )
-
-        entries = sorted(
-            self.app.state.leaderboard.items(),
-            key=lambda item: item[1],
-            reverse=True,
-        )
-
-        if not entries:
-            centered(
-                surface,
-                "No scores yet.",
-                250,
-                20,
-                GREY,
-            )
-
-        y = 130
-
-        for index, (name, score) in enumerate(
-            entries[:10],
-            start=1
-        ):
-            panel(
-                surface,
-                pygame.Rect(
-                    150,
-                    y,
-                    660,
-                    45
-                )
-            )
-
-            text(
-                surface,
-                f"{index}.",
-                (175, y + 12),
-                18,
-                YELLOW,
-                True,
-            )
-
-            text(
-                surface,
-                name,
-                (230, y + 12),
-                18,
-                WHITE,
-            )
-
-            text(
-                surface,
-                str(score),
-                (700, y + 12),
-                18,
-                GREEN,
-                True,
-            )
-
-            y += 55
-
-        self.draw_buttons(surface)
-
-
-class MessageScreen(BaseScreen):
-    def __init__(self, app, title, message):
-        super().__init__(app)
-
-        self.title = title
-        self.message = message
-
-        self.buttons = [
-            Button(
-                (410, 480, 140, 45),
-                "Continue",
-                lambda:
-                    app.set_screen("main"),
-            )
-        ]
-
-    def draw(self, surface):
-        surface.fill(BG)
-
-        panel(
-            surface,
-            pygame.Rect(
-                120,
-                150,
-                720,
-                360
-            )
-        )
-
-        centered(
-            surface,
-            self.title,
-            195,
-            32,
-            WHITE,
-            True,
-        )
-
-        lines = self.message.split(
-            "\n"
-        )
-
-        y = 270
-
-        for line in lines:
-            centered(
-                surface,
-                line,
-                y,
-                18,
-                GREY,
-            )
-            y += 30
-
-        self.draw_buttons(surface)
-# Tung Tangle
-
-A small Pygame adventure game where you train, explore,
-fight rivals, collect items and evolve your Tung.
-
-## Requirements
-
-- Python 3.10+
-- Pygame
-
-## Installation
-
-Install the dependency:
-
-```bash
-pip install -r requirements.txt
-python main.py
+    html += battleLog
+        .slice(-10)
+        .map(line => `<div class="log-entry">${line}</div>`)
+        .join("");
+
+    html += `
+        <button class="modal-button" onclick="closeModal()">
+            Continue
+        </button>
+    `;
+
+    showModal(result, html);
+}
+
+function openInventory() {
+    const items = game.inventory;
+
+    let html = `
+        <div class="item">
+            <div>
+                <strong>🍓 Berry</strong>
+                <p>Restores 25 HP.</p>
+                <small>Owned: ${items.berry}</small>
+            </div>
+
+            <button onclick="useItem('berry')">Use</button>
+        </div>
+
+        <div class="item">
+            <div>
+                <strong>🥤 Energy Drink</strong>
+                <p>Restores 40 Energy.</p>
+                <small>Owned: ${items.energyDrink}</small>
+            </div>
+
+            <button onclick="useItem('energyDrink')">Use</button>
+        </div>
+
+        <div class="item">
+            <div>
+                <strong>🎟️ Training Token</strong>
+                <p>Boosts your next training session.</p>
+                <small>Owned: ${items.trainingToken}</small>
+            </div>
+        </div>
+    `;
+
+    showModal("🎒 Inventory", html);
+}
+
+function useItem(item) {
+    const p = game.player;
+
+    if (game.inventory[item] <= 0) {
+        addLog("⚠️ You don't have that item.");
+        return;
+    }
+
+    if (item === "berry") {
+        game.inventory.berry--;
+
+        const healed = Math.min(25, p.maxHp - p.hp);
+
+        p.hp += healed;
+
+        addLog(`🍓 You ate a Berry and recovered ${healed} HP.`);
+    }
+
+    else if (item === "energyDrink") {
+        game.inventory.energyDrink--;
+
+        const restored =
+            Math.min(40, p.maxEnergy - p.energy);
+
+        p.energy += restored;
+
+        addLog(`🥤 Energy Drink restored ${restored} energy.`);
+    }
+
+    closeModal();
+    updateUI();
+}
+
+function openTravel() {
+    let html = "";
+
+    locations.forEach(location => {
+
+        const current =
+            location.name === game.player.location;
+
+        html += `
+            <div class="location">
+                <strong>📍 ${location.name}</strong>
+                <p>${location.description}</p>
+
+                ${
+                    current
+                        ? "<strong>You're here.</strong>"
+                        : `<button onclick='travel("${location.name}")'>
+                            Travel here
+                           </button>`
+                }
+            </div>
+        `;
+    });
+
+    showModal("🗺️ Travel", html);
+}
+
+function travel(location) {
+    if (!spendEnergy(5)) {
+        return;
+    }
+
+    game.player.location = location;
+    game.player.day++;
+
+    addLog(`🗺️ You travelled to ${location}.`);
+    addLog(`📅 Day ${game.player.day} begins.`);
+
+    closeModal();
+    updateUI();
+}
+
+function showVictory() {
+    const score =
+        game.player.power +
+        game.player.wins * 25 +
+        game.player.day * 5 +
+        game.player.level * 50;
+
+    showModal(
+        "👑 ALPHA TUNG!",
+        `
+            <div class="win">
+                <h2>You did it!</h2>
+
+                <p>
+                    ${game.player.name} has become the
+                    ultimate Alpha Tung.
+                </p>
+
+                <h2>🏆 Score: ${score}</h2>
+
+                <button class="modal-button"
+                    onclick="closeModal()">
+                    Continue
+                </button>
+            </div>
+        `
+    );
+}
+
+function showModal(title, body) {
+    document.getElementById("modal-title").textContent = title;
+    document.getElementById("modal-body").innerHTML = body;
+
+    document.getElementById("modal").classList.remove("hidden");
+}
+
+function closeModal() {
+    document.getElementById("modal").classList.add("hidden");
+}
+
+function saveGame() {
+    localStorage.setItem(
+        "tungTangleSave",
+        JSON.stringify(game)
+    );
+
+    addLog("💾 Game saved!");
+}
+
+function loadGame() {
+    const saved = localStorage.getItem("tungTangleSave");
+
+    if (!saved) {
+        addLog("📂 No saved game found.");
+        return;
+    }
+
+    try {
+        const loaded = JSON.parse(saved);
+
+        Object.assign(game, loaded);
+
+        addLog("📂 Game loaded!");
+
+        updateUI();
+
+    } catch {
+        addLog("❌ The save file could not be loaded.");
+    }
+}
+
+function newGame() {
+    localStorage.removeItem("tungTangleSave");
+
+    location.reload();
+}
+
+createRivals();
+
+addLog("🐸 Welcome to Tung Tangle!");
+addLog("🌟 Your journey to become an Alpha Tung begins.");
+
+updateUI();
