@@ -11,22 +11,22 @@ body {
         Helvetica,
         sans-serif;
 
-    background:
-        radial-gradient(
-            circle at top,
-            #263653,
-            #090d14 70%
-        );
-
     color: white;
 
     min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #263753,
+            #070b11 70%
+        );
 }
 
 
 #game {
 
-    width: min(1100px, 95%);
+    width: min(1150px, 95%);
 
     margin: auto;
 
@@ -55,19 +55,18 @@ h1 {
 
     font-size: 38px;
 
-    color: #f4a742;
+    color: #f39a32;
 
     text-shadow:
-        3px 3px 0 #5a2e14;
+        3px 3px #542a12;
 }
 
 .subtitle {
 
     margin: 5px 0 0;
 
-    color: #aebbd0;
+    color: #9baac0;
 }
-
 
 .header-buttons {
 
@@ -78,34 +77,49 @@ h1 {
     flex-wrap: wrap;
 }
 
+
+/* BUTTONS */
+
 button {
 
-    border: none;
+    border: 1px solid #3b506e;
 
-    cursor: pointer;
+    background:
+        linear-gradient(
+            145deg,
+            #19263a,
+            #0d1522
+        );
 
     color: white;
 
-    background: #172238;
-
-    border: 1px solid #405271;
-
-    border-radius: 10px;
-
     padding: 10px 14px;
 
+    border-radius: 9px;
+
     font-weight: bold;
+
+    cursor: pointer;
+
+    transition: .15s;
 }
 
 button:hover {
 
-    background: #263a5c;
+    transform: translateY(-2px);
 
-    transform: translateY(-1px);
+    border-color: #6c86a8;
+
+    background:
+        linear-gradient(
+            145deg,
+            #263954,
+            #121e2e
+        );
 }
 
 
-/* TURN PANEL */
+/* TURN */
 
 .turn-panel {
 
@@ -123,21 +137,20 @@ button:hover {
 
     border: 2px solid;
 
-    transition: 0.3s;
 }
 
 .turn-player {
 
-    background: #0d2b18;
+    background: #092515;
 
-    border-color: #35d66b;
+    border-color: #35d96a;
 }
 
 .turn-ai {
 
-    background: #29130f;
+    background: #28120e;
 
-    border-color: #ff5c3a;
+    border-color: #ff543c;
 }
 
 #turn-icon {
@@ -152,9 +165,9 @@ button:hover {
 
 .turn-panel p {
 
-    margin: 3px 0 0;
+    margin: 4px 0 0;
 
-    color: #aebbd0;
+    color: #9facbf;
 }
 
 .turn-number {
@@ -163,7 +176,7 @@ button:hover {
 
     text-align: center;
 
-    color: #9ba8bd;
+    color: #8f9caf;
 }
 
 .turn-number strong {
@@ -172,7 +185,7 @@ button:hover {
 
     color: white;
 
-    font-size: 22px;
+    font-size: 23px;
 }
 
 
@@ -183,11 +196,11 @@ button:hover {
     background:
         linear-gradient(
             145deg,
-            #111b2b,
-            #0a111c
+            #111c2c,
+            #080e17
         );
 
-    border: 1px solid #30415e;
+    border: 1px solid #30425c;
 
     border-radius: 16px;
 
@@ -196,7 +209,7 @@ button:hover {
     margin-bottom: 18px;
 
     box-shadow:
-        0 10px 30px rgba(0,0,0,.25);
+        0 12px 35px rgba(0,0,0,.28);
 }
 
 
@@ -211,28 +224,28 @@ button:hover {
     gap: 15px;
 }
 
-.player-sprite-box {
+.sprite-box {
 
-    width: 90px;
+    width: 100px;
 
-    height: 90px;
+    height: 100px;
 
     display: grid;
 
     place-items: center;
 
-    background: #05080d;
+    background: #05080c;
 
-    border-radius: 15px;
+    border: 1px solid #41536d;
 
-    border: 1px solid #43516a;
+    border-radius: 14px;
 }
 
 #player-sprite {
 
-    width: 64px;
+    width: 80px;
 
-    height: 64px;
+    height: 80px;
 
     image-rendering: pixelated;
 }
@@ -246,9 +259,11 @@ button:hover {
 
 .player-header p {
 
-    margin: 3px 0;
+    margin: 4px 0;
 
-    color: #f4a742;
+    color: #ffb633;
+
+    font-weight: bold;
 }
 
 .level-box {
@@ -257,16 +272,16 @@ button:hover {
 
     text-align: center;
 
-    color: #9ba8bd;
+    color: #9daabd;
 }
 
 .level-box strong {
 
     display: block;
 
-    font-size: 25px;
+    color: #fff;
 
-    color: white;
+    font-size: 25px;
 }
 
 
@@ -274,7 +289,7 @@ button:hover {
 
 .bars {
 
-    margin-top: 20px;
+    margin-top: 18px;
 }
 
 .bar-container {
@@ -282,7 +297,7 @@ button:hover {
     display: grid;
 
     grid-template-columns:
-        90px 1fr 100px;
+        90px 1fr 105px;
 
     align-items: center;
 
@@ -295,35 +310,32 @@ button:hover {
 
     height: 13px;
 
-    background: #05080d;
+    background: #05070a;
+
+    border: 1px solid #36465d;
 
     border-radius: 20px;
 
     overflow: hidden;
-
-    border: 1px solid #34435a;
 }
 
 .bar-fill {
 
     height: 100%;
 
-    width: 0;
-
-    transition:
-        width .4s ease;
+    transition: width .4s;
 }
 
-.bar-fill.hp {
-    background: #ef4444;
+.hp {
+    background: #e83c3c;
 }
 
-.bar-fill.energy {
-    background: #22aaff;
+.energy {
+    background: #23a9e8;
 }
 
-.bar-fill.xp {
-    background: #f5c542;
+.xp {
+    background: #ffc431;
 }
 
 
@@ -338,9 +350,9 @@ button:hover {
 
     margin-top: 18px;
 
-    border-top: 1px solid #26364f;
-
     padding-top: 15px;
+
+    border-top: 1px solid #29384e;
 
     text-align: center;
 }
@@ -351,7 +363,7 @@ button:hover {
 
     flex-direction: column;
 
-    gap: 3px;
+    gap: 4px;
 }
 
 .stats strong {
@@ -361,7 +373,7 @@ button:hover {
 
 .stats small {
 
-    color: #8f9eb4;
+    color: #8998ad;
 }
 
 
@@ -369,21 +381,16 @@ button:hover {
 
 .location-info {
 
-    margin-top: 15px;
-
     text-align: center;
 
-    color: #9caac0;
-}
+    margin-top: 15px;
 
-.location-info span {
-
-    margin: 0 5px;
+    color: #8d9cb0;
 }
 
 .location-info strong {
 
-    color: #f4c542;
+    color: #ffc43d;
 }
 
 
@@ -396,8 +403,6 @@ button:hover {
     justify-content: space-between;
 
     align-items: center;
-
-    margin-bottom: 12px;
 }
 
 .section-heading h2 {
@@ -405,36 +410,45 @@ button:hover {
     margin: 0;
 }
 
+#ai-count {
+
+    color: #8494a9;
+
+    font-size: 14px;
+}
+
 #ai-list {
 
     display: grid;
 
     grid-template-columns:
-        repeat(auto-fit, minmax(240px, 1fr));
+        repeat(auto-fit, minmax(220px, 1fr));
 
-    gap: 9px;
+    gap: 10px;
+
+    margin-top: 14px;
 }
 
 .ai {
 
-    padding: 11px;
+    background: #0b131f;
 
-    border-radius: 11px;
+    border: 1px solid #283b55;
 
-    background: #0c1422;
+    border-radius: 12px;
 
-    border: 1px solid #26364d;
+    padding: 10px;
 
-    transition: .25s;
+    transition: .2s;
 }
 
 .ai.active {
 
-    border-color: #ff5938;
+    border-color: #ff593c;
 
-    background: #24130f;
+    background: #25120e;
 
-    transform: scale(1.02);
+    transform: scale(1.025);
 
     box-shadow:
         0 0 20px rgba(255,80,50,.2);
@@ -446,41 +460,45 @@ button:hover {
 
     align-items: center;
 
-    gap: 10px;
+    gap: 9px;
 }
 
 .ai-sprite {
 
-    width: 42px;
+    width: 55px;
 
-    height: 42px;
+    height: 55px;
 
     image-rendering: pixelated;
+
+    background: #05080d;
+
+    border-radius: 8px;
 }
 
 .ai-name {
 
-    font-weight: bold;
-
     flex: 1;
+
+    font-weight: bold;
 }
 
 .ai-stats {
 
+    margin-top: 7px;
+
     font-size: 12px;
 
-    color: #a7b4c8;
-
-    margin-top: 6px;
+    color: #a1aec1;
 }
 
 .ai-action {
 
+    margin-top: 6px;
+
+    color: #ffbd3e;
+
     font-size: 12px;
-
-    color: #f4a742;
-
-    margin-top: 5px;
 }
 
 
@@ -513,13 +531,6 @@ button:hover {
     gap: 6px;
 
     font-size: 25px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #17243a,
-            #0d1625
-        );
 }
 
 .action-button strong {
@@ -531,12 +542,12 @@ button:hover {
 
     font-size: 11px;
 
-    color: #91a0b7;
+    color: #8998ad;
 }
 
 .action-button:disabled {
 
-    opacity: .4;
+    opacity: .35;
 
     cursor: not-allowed;
 
@@ -545,11 +556,6 @@ button:hover {
 
 
 /* LOG */
-
-.log-card h2 {
-
-    margin-top: 0;
-}
 
 #log {
 
@@ -560,11 +566,11 @@ button:hover {
 
 .log-entry {
 
-    padding: 7px 10px;
+    padding: 8px;
 
-    border-bottom: 1px solid #1e2b3d;
+    border-bottom: 1px solid #1e2a3b;
 
-    color: #c4cfdf;
+    color: #c5cfde;
 
     font-size: 14px;
 }
@@ -578,18 +584,18 @@ button:hover {
 
     inset: 0;
 
-    background:
-        rgba(0,0,0,.82);
+    z-index: 100;
 
     display: flex;
 
-    justify-content: center;
-
     align-items: center;
+
+    justify-content: center;
 
     padding: 20px;
 
-    z-index: 100;
+    background:
+        rgba(0,0,0,.84);
 }
 
 .hidden {
@@ -599,61 +605,88 @@ button:hover {
 
 .modal-content {
 
-    width: min(800px, 100%);
+    width: min(850px, 100%);
 
     max-height: 90vh;
 
     overflow-y: auto;
 
-    background:
-        linear-gradient(
-            145deg,
-            #101b2b,
-            #070c14
-        );
-
-    border: 2px solid #40516c;
-
-    border-radius: 20px;
+    position: relative;
 
     padding: 22px;
 
-    position: relative;
+    border-radius: 20px;
+
+    border: 2px solid #40536e;
+
+    background:
+        linear-gradient(
+            145deg,
+            #111c2b,
+            #070c13
+        );
 
     box-shadow:
-        0 20px 80px #000;
+        0 25px 80px #000;
 }
 
 .close {
 
     position: absolute;
 
-    top: 12px;
-
     right: 12px;
 
-    font-size: 18px;
+    top: 12px;
 
-    padding: 7px 11px;
+    font-size: 18px;
 }
 
 
-/* FIGHT */
+/* RIVALS */
+
+.rivals {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 10px;
+}
+
+.rival {
+
+    text-align: left;
+
+    padding: 15px;
+}
+
+.rival-name {
+
+    font-size: 18px;
+
+    display: block;
+
+    margin-bottom: 7px;
+}
+
+
+/* BATTLE */
 
 .battle-arena {
 
     background:
         radial-gradient(
             circle at center,
-            #30445d,
-            #080d15 70%
+            #293b50,
+            #05080d 72%
         );
+
+    border: 2px solid #405570;
 
     border-radius: 18px;
 
-    padding: 20px;
-
-    border: 2px solid #354967;
+    padding: 18px;
 
     overflow: hidden;
 }
@@ -662,48 +695,33 @@ button:hover {
 
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
 
-    gap: 15px;
+    justify-content: space-around;
+
+    gap: 10px;
 }
 
 .battle-fighter {
 
-    width: 40%;
+    width: 38%;
 
     text-align: center;
 }
 
-.battle-fighter.enemy {
-
-    color: #ff6b5a;
-}
-
-.battle-fighter.player {
-
-    color: #65ee7d;
-}
-
 .battle-fighter canvas {
 
-    width: 150px;
+    width: 180px;
 
-    height: 150px;
+    height: 180px;
 
-    image-rendering: pixelated;
+    max-width: 100%;
 
-    background:
-        radial-gradient(
-            circle,
-            #27384c,
-            #070b11
-        );
+    background: #05080c;
 
-    border-radius: 20px;
+    border: 2px solid #485b76;
 
-    border: 2px solid #52647e;
+    border-radius: 18px;
 
     image-rendering: pixelated;
 }
@@ -714,30 +732,39 @@ button:hover {
 
     font-weight: bold;
 
-    margin: 8px 0;
+    margin: 7px;
+}
+
+.player-name {
+
+    color: #62ed78;
+}
+
+.enemy-name {
+
+    color: #ff6351;
 }
 
 .battle-hp {
 
     height: 17px;
 
-    background: #05070a;
+    background: #030507;
+
+    border: 1px solid #4d5c70;
 
     border-radius: 20px;
 
     overflow: hidden;
-
-    border: 1px solid #4c5d70;
 }
 
 .battle-hp-fill {
 
     height: 100%;
 
-    background: #36d65f;
+    background: #32d65e;
 
-    transition:
-        width .35s ease;
+    transition: width .35s;
 }
 
 .enemy .battle-hp-fill {
@@ -747,28 +774,27 @@ button:hover {
 
 .battle-hp-text {
 
-    margin-top: 5px;
-
     font-size: 13px;
+
+    margin-top: 4px;
 }
 
 .battle-vs {
 
-    font-size: 45px;
+    font-size: 48px;
 
     font-weight: 1000;
 
-    color: #ffba37;
+    color: #ffbf32;
 
     text-shadow:
-        3px 3px 0 #792b18,
-        0 0 20px #ff6b2d;
+        3px 3px #6f2a10,
+        0 0 25px #ff7b19;
 
-    animation:
-        pulseVS 1s infinite alternate;
+    animation: vsPulse .8s infinite alternate;
 }
 
-@keyframes pulseVS {
+@keyframes vsPulse {
 
     from {
         transform: scale(1);
@@ -779,25 +805,25 @@ button:hover {
     }
 }
 
+
+/* BATTLE LOG */
+
 .battle-turn {
 
     text-align: center;
 
+    padding: 9px;
+
     margin: 12px;
 
-    padding: 8px;
+    border-radius: 9px;
 
-    border-radius: 10px;
+    background: #111d2d;
 
-    background: #121d2c;
-
-    border: 1px solid #3c506c;
+    border: 1px solid #40536d;
 
     font-weight: bold;
 }
-
-
-/* BATTLE LOG */
 
 .battle-log {
 
@@ -805,15 +831,13 @@ button:hover {
 
     overflow-y: auto;
 
-    background: #05090f;
-
-    border: 1px solid #29394f;
-
-    border-radius: 12px;
-
     padding: 10px;
 
-    margin-top: 15px;
+    background: #04070b;
+
+    border: 1px solid #293a51;
+
+    border-radius: 12px;
 }
 
 .battle-event {
@@ -822,24 +846,24 @@ button:hover {
 
     margin-bottom: 5px;
 
-    background: #101a28;
+    background: #0e1825;
 
-    border-radius: 7px;
+    border-left: 3px solid #ffb52f;
 
-    animation:
-        battleMessage .3s ease;
+    border-radius: 6px;
 
-    border-left: 3px solid #f4a742;
+    animation: battleIn .25s;
 }
 
-@keyframes battleMessage {
+@keyframes battleIn {
 
     from {
 
         opacity: 0;
 
         transform:
-            translateX(-20px);
+            translateX(-18px);
+
     }
 
     to {
@@ -848,92 +872,40 @@ button:hover {
 
         transform:
             translateX(0);
+
     }
 }
 
 
-/* VICTORY */
+/* RESULT */
 
-.victory-screen {
+.result {
 
     text-align: center;
 
-    padding: 15px;
+    padding: 20px;
 }
 
-.victory-title {
+.result-title {
 
-    font-size: 48px;
+    font-size: 50px;
 
     font-weight: 1000;
 
-    color: #ffd43b;
+    color: #ffd23c;
 
     text-shadow:
-        3px 3px 0 #784900,
-        0 0 30px #ffbf00;
-
-    animation:
-        victoryPulse .8s infinite alternate;
+        3px 3px #704500,
+        0 0 30px #ffbd00;
 }
 
-@keyframes victoryPulse {
+.result button {
 
-    from {
-        transform: scale(1);
-    }
+    margin-top: 15px;
 
-    to {
-        transform: scale(1.08);
-    }
-}
+    font-size: 16px;
 
-.victory-screen p {
-
-    font-size: 18px;
-
-    color: #b9c7d9;
-}
-
-
-/* RIVALS */
-
-.rivals {
-
-    display: grid;
-
-    gap: 10px;
-}
-
-.rival {
-
-    display: grid;
-
-    grid-template-columns:
-        1fr auto;
-
-    gap: 5px;
-
-    text-align: left;
-
-    padding: 14px;
-
-    background: #101a29;
-}
-
-
-/* INVENTORY / TRAVEL */
-
-.item,
-.location {
-
-    width: 100%;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    margin-bottom: 8px;
+    padding: 13px 25px;
 }
 
 
@@ -949,20 +921,35 @@ button:hover {
 
     padding: 12px;
 
-    border-bottom: 1px solid #29384c;
+    border-bottom: 1px solid #29384b;
 }
 
 .leaderboard-row span {
 
-    color: #9eacc0;
+    color: #9aa8bb;
 
     font-size: 13px;
 }
 
 
+/* INVENTORY */
+
+.item,
+.location {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+}
+
+
 /* MOBILE */
 
-@media(max-width: 700px) {
+@media(max-width:700px) {
 
     header {
 
@@ -996,16 +983,11 @@ button:hover {
         grid-column: 2;
     }
 
-    .battle-header {
-
-        gap: 4px;
-    }
-
     .battle-fighter canvas {
 
-        width: 100px;
+        width: 110px;
 
-        height: 100px;
+        height: 110px;
     }
 
     .battle-vs {
