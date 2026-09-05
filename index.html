@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Tung Tangle</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
 <body>
 
 <div id="game">
 
+    <!-- HEADER -->
+
     <header>
 
         <div>
-            <h1>🐸 TUNG TANGLE</h1>
+
+            <h1>🟫 TUNG TANGLE</h1>
+
             <p class="subtitle">
                 Train. Battle. Evolve. Become the Alpha.
             </p>
+
         </div>
 
         <div class="header-buttons">
@@ -41,9 +56,12 @@
     </header>
 
 
-    <!-- TURN INDICATOR -->
+    <!-- TURN -->
 
-    <section id="turn-panel" class="turn-player">
+    <section
+        id="turn-panel"
+        class="turn-panel turn-player"
+    >
 
         <div id="turn-icon">
             🟢
@@ -62,10 +80,13 @@
         </div>
 
         <div class="turn-number">
+
             TURN
+
             <strong id="turn-number">
                 1
             </strong>
+
         </div>
 
     </section>
@@ -73,9 +94,19 @@
 
     <!-- PLAYER -->
 
-    <section class="card">
+    <section class="card player-card">
 
-        <div class="player-title">
+        <div class="player-header">
+
+            <div class="player-sprite-box">
+
+                <canvas
+                    id="player-sprite"
+                    width="32"
+                    height="32"
+                ></canvas>
+
+            </div>
 
             <div>
 
@@ -89,13 +120,13 @@
 
             </div>
 
-            <div class="level">
+            <div class="level-box">
 
                 LEVEL
 
-                <span id="level">
+                <strong id="level">
                     1
-                </span>
+                </strong>
 
             </div>
 
@@ -109,10 +140,12 @@
                 <span>❤️ HP</span>
 
                 <div class="bar">
+
                     <div
                         id="hp-bar"
-                        class="bar-fill hp">
-                    </div>
+                        class="bar-fill hp"
+                    ></div>
+
                 </div>
 
                 <span id="hp-text">
@@ -130,8 +163,8 @@
 
                     <div
                         id="energy-bar"
-                        class="bar-fill energy">
-                    </div>
+                        class="bar-fill energy"
+                    ></div>
 
                 </div>
 
@@ -150,8 +183,8 @@
 
                     <div
                         id="xp-bar"
-                        class="bar-fill xp">
-                    </div>
+                        class="bar-fill xp"
+                    ></div>
 
                 </div>
 
@@ -167,43 +200,55 @@
         <div class="stats">
 
             <div>
-                💪 Power
+                💪
                 <strong id="power">10</strong>
+                <small>Power</small>
             </div>
 
             <div>
-                🛡️ Defence
+                🛡️
                 <strong id="defence">5</strong>
+                <small>Defence</small>
             </div>
 
             <div>
-                ⚡ Speed
+                ⚡
                 <strong id="speed">5</strong>
+                <small>Speed</small>
             </div>
 
             <div>
-                🏆 Wins
+                🏆
                 <strong id="wins">0</strong>
+                <small>Wins</small>
             </div>
 
-            <div>
-                📅 Day
-                <strong id="day">1</strong>
-            </div>
+        </div>
 
-            <div>
-                📍
-                <strong id="location">
-                    Tung Town
-                </strong>
-            </div>
+
+        <div class="location-info">
+
+            📍
+            <span id="location">
+                Tung Town
+            </span>
+
+            <span>
+                •
+            </span>
+
+            ROUND
+
+            <strong id="round">
+                1
+            </strong>
 
         </div>
 
     </section>
 
 
-    <!-- AI STATUS -->
+    <!-- AI -->
 
     <section class="card ai-card">
 
@@ -219,8 +264,7 @@
 
         </div>
 
-        <div id="ai-list">
-        </div>
+        <div id="ai-list"></div>
 
     </section>
 
@@ -231,8 +275,8 @@
 
         <button
             class="action-button"
-            id="explore-button"
-            onclick="playerAction('explore')">
+            onclick="playerAction('explore')"
+        >
 
             🌲
 
@@ -249,8 +293,8 @@
 
         <button
             class="action-button"
-            id="power-button"
-            onclick="playerAction('power')">
+            onclick="playerAction('power')"
+        >
 
             💪
 
@@ -267,8 +311,8 @@
 
         <button
             class="action-button"
-            id="defence-button"
-            onclick="playerAction('defence')">
+            onclick="playerAction('defence')"
+        >
 
             🛡️
 
@@ -285,8 +329,8 @@
 
         <button
             class="action-button"
-            id="speed-button"
-            onclick="playerAction('speed')">
+            onclick="playerAction('speed')"
+        >
 
             ⚡
 
@@ -303,8 +347,8 @@
 
         <button
             class="action-button"
-            id="rest-button"
-            onclick="playerAction('rest')">
+            onclick="playerAction('rest')"
+        >
 
             💤
 
@@ -321,8 +365,8 @@
 
         <button
             class="action-button"
-            id="fight-button"
-            onclick="playerAction('fight')">
+            onclick="playerAction('fight')"
+        >
 
             ⚔️
 
@@ -339,8 +383,8 @@
 
         <button
             class="action-button"
-            id="inventory-button"
-            onclick="openInventory()">
+            onclick="openInventory()"
+        >
 
             🎒
 
@@ -357,8 +401,8 @@
 
         <button
             class="action-button"
-            id="travel-button"
-            onclick="openTravel()">
+            onclick="openTravel()"
+        >
 
             🗺️
 
@@ -383,8 +427,7 @@
             📜 Adventure Log
         </h2>
 
-        <div id="log">
-        </div>
+        <div id="log"></div>
 
     </section>
 
@@ -395,23 +438,21 @@
 
 <div
     id="modal"
-    class="modal hidden">
+    class="modal hidden"
+>
 
     <div class="modal-content">
 
         <button
             class="close"
-            onclick="closeModal()">
-
+            onclick="closeModal()"
+        >
             ✕
-
         </button>
 
-        <h2 id="modal-title">
-        </h2>
+        <h2 id="modal-title"></h2>
 
-        <div id="modal-body">
-        </div>
+        <div id="modal-body"></div>
 
     </div>
 
