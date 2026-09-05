@@ -1,55 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Tung Tangle</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <div id="game">
 
-    <!-- HEADER -->
-
     <header>
 
         <div>
-
             <h1>🟫 TUNG TANGLE</h1>
 
             <p class="subtitle">
                 Train. Battle. Evolve. Become the Alpha.
             </p>
-
         </div>
 
         <div class="header-buttons">
 
-            <button onclick="saveGame()">
-                💾 Save
-            </button>
-
-            <button onclick="loadGame()">
-                📂 Load
-            </button>
-
-            <button onclick="openLeaderboard()">
-                🏆 Leaderboard
-            </button>
+            <button onclick="saveGame()">💾 Save</button>
+            <button onclick="loadGame()">📂 Load</button>
+            <button onclick="openLeaderboard()">🏆 Leaderboard</button>
 
         </div>
 
@@ -58,34 +36,23 @@
 
     <!-- TURN -->
 
-    <section
-        id="turn-panel"
-        class="turn-panel turn-player"
-    >
+    <section id="turn-panel" class="turn-panel turn-player">
 
-        <div id="turn-icon">
-            🟢
-        </div>
+        <div id="turn-icon">🟢</div>
 
         <div>
-
-            <strong id="turn-title">
-                YOUR TURN
-            </strong>
+            <strong id="turn-title">YOUR TURN</strong>
 
             <p id="turn-description">
                 Choose an action.
             </p>
-
         </div>
 
         <div class="turn-number">
 
             TURN
 
-            <strong id="turn-number">
-                1
-            </strong>
+            <strong id="turn-number">1</strong>
 
         </div>
 
@@ -98,7 +65,7 @@
 
         <div class="player-header">
 
-            <div class="player-sprite-box">
+            <div class="sprite-box">
 
                 <canvas
                     id="player-sprite"
@@ -140,12 +107,7 @@
                 <span>❤️ HP</span>
 
                 <div class="bar">
-
-                    <div
-                        id="hp-bar"
-                        class="bar-fill hp"
-                    ></div>
-
+                    <div id="hp-bar" class="bar-fill hp"></div>
                 </div>
 
                 <span id="hp-text">
@@ -160,12 +122,7 @@
                 <span>⚡ Energy</span>
 
                 <div class="bar">
-
-                    <div
-                        id="energy-bar"
-                        class="bar-fill energy"
-                    ></div>
-
+                    <div id="energy-bar" class="bar-fill energy"></div>
                 </div>
 
                 <span id="energy-text">
@@ -180,12 +137,7 @@
                 <span>⭐ XP</span>
 
                 <div class="bar">
-
-                    <div
-                        id="xp-bar"
-                        class="bar-fill xp"
-                    ></div>
-
+                    <div id="xp-bar" class="bar-fill xp"></div>
                 </div>
 
                 <span id="xp-text">
@@ -228,20 +180,11 @@
 
         <div class="location-info">
 
-            📍
-            <span id="location">
-                Tung Town
-            </span>
+            📍 <span id="location">Tung Town</span>
 
-            <span>
-                •
-            </span>
+            • ROUND
 
-            ROUND
-
-            <strong id="round">
-                1
-            </strong>
+            <strong id="round">1</strong>
 
         </div>
 
@@ -256,6 +199,7 @@
 
             <h2>
                 🤖 AI TUNGS
+                <span id="ai-count"></span>
             </h2>
 
             <button onclick="openLeaderboard()">
@@ -273,16 +217,12 @@
 
     <section class="actions">
 
-        <button
-            class="action-button"
-            onclick="playerAction('explore')"
-        >
+        <button class="action-button"
+                onclick="playerAction('explore')">
 
             🌲
 
-            <strong>
-                Explore
-            </strong>
+            <strong>Explore</strong>
 
             <small>
                 Find items & XP
@@ -291,16 +231,12 @@
         </button>
 
 
-        <button
-            class="action-button"
-            onclick="playerAction('power')"
-        >
+        <button class="action-button"
+                onclick="playerAction('power')">
 
             💪
 
-            <strong>
-                Train Power
-            </strong>
+            <strong>Train Power</strong>
 
             <small>
                 Increase attack
@@ -309,16 +245,12 @@
         </button>
 
 
-        <button
-            class="action-button"
-            onclick="playerAction('defence')"
-        >
+        <button class="action-button"
+                onclick="playerAction('defence')">
 
             🛡️
 
-            <strong>
-                Train Defence
-            </strong>
+            <strong>Train Defence</strong>
 
             <small>
                 Increase defence
@@ -327,16 +259,12 @@
         </button>
 
 
-        <button
-            class="action-button"
-            onclick="playerAction('speed')"
-        >
+        <button class="action-button"
+                onclick="playerAction('speed')">
 
             ⚡
 
-            <strong>
-                Train Speed
-            </strong>
+            <strong>Train Speed</strong>
 
             <small>
                 Increase speed
@@ -345,16 +273,12 @@
         </button>
 
 
-        <button
-            class="action-button"
-            onclick="playerAction('rest')"
-        >
+        <button class="action-button"
+                onclick="playerAction('rest')">
 
             💤
 
-            <strong>
-                Rest
-            </strong>
+            <strong>Rest</strong>
 
             <small>
                 Recover HP & energy
@@ -363,16 +287,12 @@
         </button>
 
 
-        <button
-            class="action-button"
-            onclick="playerAction('fight')"
-        >
+        <button class="action-button"
+                onclick="playerAction('fight')">
 
             ⚔️
 
-            <strong>
-                Fight
-            </strong>
+            <strong>Fight</strong>
 
             <small>
                 Battle a rival
@@ -381,16 +301,12 @@
         </button>
 
 
-        <button
-            class="action-button"
-            onclick="openInventory()"
-        >
+        <button class="action-button"
+                onclick="openInventory()">
 
             🎒
 
-            <strong>
-                Inventory
-            </strong>
+            <strong>Inventory</strong>
 
             <small>
                 Use an item
@@ -399,16 +315,12 @@
         </button>
 
 
-        <button
-            class="action-button"
-            onclick="openTravel()"
-        >
+        <button class="action-button"
+                onclick="openTravel()">
 
             🗺️
 
-            <strong>
-                Travel
-            </strong>
+            <strong>Travel</strong>
 
             <small>
                 Visit locations
@@ -423,9 +335,7 @@
 
     <section class="card log-card">
 
-        <h2>
-            📜 Adventure Log
-        </h2>
+        <h2>📜 Adventure Log</h2>
 
         <div id="log"></div>
 
@@ -436,10 +346,7 @@
 
 <!-- MODAL -->
 
-<div
-    id="modal"
-    class="modal hidden"
->
+<div id="modal" class="modal hidden">
 
     <div class="modal-content">
 
