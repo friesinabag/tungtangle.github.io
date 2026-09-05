@@ -3,152 +3,422 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Tung Tangle</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div id="game">
+<div id="game">
 
-        <header>
-            <div>
-                <h1>🐸 TUNG TANGLE</h1>
-                <p class="subtitle">Become the ultimate Alpha Tung</p>
-            </div>
+    <header>
 
-            <div class="header-buttons">
-                <button onclick="saveGame()">💾 Save</button>
-                <button onclick="loadGame()">📂 Load</button>
-            </div>
-        </header>
+        <div>
+            <h1>🐸 TUNG TANGLE</h1>
+            <p class="subtitle">
+                Train. Battle. Evolve. Become the Alpha.
+            </p>
+        </div>
 
-        <main>
+        <div class="header-buttons">
 
-            <section id="player-card" class="card">
-                <div class="player-title">
-                    <div>
-                        <h2 id="tung-name">Chomper</h2>
-                        <p id="species">Tung</p>
-                    </div>
+            <button onclick="saveGame()">
+                💾 Save
+            </button>
 
-                    <div class="level">
-                        LEVEL <span id="level">1</span>
-                    </div>
-                </div>
+            <button onclick="loadGame()">
+                📂 Load
+            </button>
 
-                <div class="bars">
-
-                    <div class="bar-container">
-                        <span>❤️ HP</span>
-                        <div class="bar">
-                            <div id="hp-bar" class="bar-fill hp"></div>
-                        </div>
-                        <span id="hp-text">100 / 100</span>
-                    </div>
-
-                    <div class="bar-container">
-                        <span>⚡ Energy</span>
-                        <div class="bar">
-                            <div id="energy-bar" class="bar-fill energy"></div>
-                        </div>
-                        <span id="energy-text">100 / 100</span>
-                    </div>
-
-                    <div class="bar-container">
-                        <span>⭐ XP</span>
-                        <div class="bar">
-                            <div id="xp-bar" class="bar-fill xp"></div>
-                        </div>
-                        <span id="xp-text">0 / 100</span>
-                    </div>
-
-                </div>
-
-                <div class="stats">
-                    <div>💪 Power <strong id="power">10</strong></div>
-                    <div>🛡️ Defence <strong id="defence">5</strong></div>
-                    <div>⚡ Speed <strong id="speed">5</strong></div>
-                    <div>🏆 Wins <strong id="wins">0</strong></div>
-                    <div>📅 Day <strong id="day">1</strong></div>
-                    <div>📍 <strong id="location">Tung Town</strong></div>
-                </div>
-            </section>
-
-            <section class="actions">
-
-                <button class="action-button" onclick="explore()">
-                    🌲
-                    <strong>Explore</strong>
-                    <small>Find items & encounters</small>
-                </button>
-
-                <button class="action-button" onclick="train('power')">
-                    💪
-                    <strong>Train Power</strong>
-                    <small>Increase attack strength</small>
-                </button>
-
-                <button class="action-button" onclick="train('defence')">
-                    🛡️
-                    <strong>Train Defence</strong>
-                    <small>Become harder to defeat</small>
-                </button>
-
-                <button class="action-button" onclick="train('speed')">
-                    ⚡
-                    <strong>Train Speed</strong>
-                    <small>Improve your speed</small>
-                </button>
-
-                <button class="action-button" onclick="rest()">
-                    💤
-                    <strong>Rest</strong>
-                    <small>Restore energy & HP</small>
-                </button>
-
-                <button class="action-button" onclick="openFight()">
-                    ⚔️
-                    <strong>Fight</strong>
-                    <small>Battle a rival Tung</small>
-                </button>
-
-                <button class="action-button" onclick="openInventory()">
-                    🎒
-                    <strong>Inventory</strong>
-                    <small>Use your items</small>
-                </button>
-
-                <button class="action-button" onclick="openTravel()">
-                    🗺️
-                    <strong>Travel</strong>
-                    <small>Visit different areas</small>
-                </button>
-
-            </section>
-
-            <section class="card log-card">
-                <h2>📜 Adventure Log</h2>
-                <div id="log"></div>
-            </section>
-
-        </main>
-
-    </div>
-
-    <div id="modal" class="modal hidden">
-        <div class="modal-content">
-
-            <button class="close" onclick="closeModal()">✕</button>
-
-            <h2 id="modal-title"></h2>
-
-            <div id="modal-body"></div>
+            <button onclick="openLeaderboard()">
+                🏆 Leaderboard
+            </button>
 
         </div>
+
+    </header>
+
+
+    <!-- TURN INDICATOR -->
+
+    <section id="turn-panel" class="turn-player">
+
+        <div id="turn-icon">
+            🟢
+        </div>
+
+        <div>
+
+            <strong id="turn-title">
+                YOUR TURN
+            </strong>
+
+            <p id="turn-description">
+                Choose an action.
+            </p>
+
+        </div>
+
+        <div class="turn-number">
+            TURN
+            <strong id="turn-number">
+                1
+            </strong>
+        </div>
+
+    </section>
+
+
+    <!-- PLAYER -->
+
+    <section class="card">
+
+        <div class="player-title">
+
+            <div>
+
+                <h2 id="tung-name">
+                    Chomper
+                </h2>
+
+                <p id="species">
+                    Tung
+                </p>
+
+            </div>
+
+            <div class="level">
+
+                LEVEL
+
+                <span id="level">
+                    1
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="bars">
+
+            <div class="bar-container">
+
+                <span>❤️ HP</span>
+
+                <div class="bar">
+                    <div
+                        id="hp-bar"
+                        class="bar-fill hp">
+                    </div>
+                </div>
+
+                <span id="hp-text">
+                    100 / 100
+                </span>
+
+            </div>
+
+
+            <div class="bar-container">
+
+                <span>⚡ Energy</span>
+
+                <div class="bar">
+
+                    <div
+                        id="energy-bar"
+                        class="bar-fill energy">
+                    </div>
+
+                </div>
+
+                <span id="energy-text">
+                    100 / 100
+                </span>
+
+            </div>
+
+
+            <div class="bar-container">
+
+                <span>⭐ XP</span>
+
+                <div class="bar">
+
+                    <div
+                        id="xp-bar"
+                        class="bar-fill xp">
+                    </div>
+
+                </div>
+
+                <span id="xp-text">
+                    0 / 100
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="stats">
+
+            <div>
+                💪 Power
+                <strong id="power">10</strong>
+            </div>
+
+            <div>
+                🛡️ Defence
+                <strong id="defence">5</strong>
+            </div>
+
+            <div>
+                ⚡ Speed
+                <strong id="speed">5</strong>
+            </div>
+
+            <div>
+                🏆 Wins
+                <strong id="wins">0</strong>
+            </div>
+
+            <div>
+                📅 Day
+                <strong id="day">1</strong>
+            </div>
+
+            <div>
+                📍
+                <strong id="location">
+                    Tung Town
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- AI STATUS -->
+
+    <section class="card ai-card">
+
+        <div class="section-heading">
+
+            <h2>
+                🤖 AI TUNGS
+            </h2>
+
+            <button onclick="openLeaderboard()">
+                🏆 Rankings
+            </button>
+
+        </div>
+
+        <div id="ai-list">
+        </div>
+
+    </section>
+
+
+    <!-- ACTIONS -->
+
+    <section class="actions">
+
+        <button
+            class="action-button"
+            id="explore-button"
+            onclick="playerAction('explore')">
+
+            🌲
+
+            <strong>
+                Explore
+            </strong>
+
+            <small>
+                Find items & XP
+            </small>
+
+        </button>
+
+
+        <button
+            class="action-button"
+            id="power-button"
+            onclick="playerAction('power')">
+
+            💪
+
+            <strong>
+                Train Power
+            </strong>
+
+            <small>
+                Increase attack
+            </small>
+
+        </button>
+
+
+        <button
+            class="action-button"
+            id="defence-button"
+            onclick="playerAction('defence')">
+
+            🛡️
+
+            <strong>
+                Train Defence
+            </strong>
+
+            <small>
+                Increase defence
+            </small>
+
+        </button>
+
+
+        <button
+            class="action-button"
+            id="speed-button"
+            onclick="playerAction('speed')">
+
+            ⚡
+
+            <strong>
+                Train Speed
+            </strong>
+
+            <small>
+                Increase speed
+            </small>
+
+        </button>
+
+
+        <button
+            class="action-button"
+            id="rest-button"
+            onclick="playerAction('rest')">
+
+            💤
+
+            <strong>
+                Rest
+            </strong>
+
+            <small>
+                Recover HP & energy
+            </small>
+
+        </button>
+
+
+        <button
+            class="action-button"
+            id="fight-button"
+            onclick="playerAction('fight')">
+
+            ⚔️
+
+            <strong>
+                Fight
+            </strong>
+
+            <small>
+                Battle a rival
+            </small>
+
+        </button>
+
+
+        <button
+            class="action-button"
+            id="inventory-button"
+            onclick="openInventory()">
+
+            🎒
+
+            <strong>
+                Inventory
+            </strong>
+
+            <small>
+                Use an item
+            </small>
+
+        </button>
+
+
+        <button
+            class="action-button"
+            id="travel-button"
+            onclick="openTravel()">
+
+            🗺️
+
+            <strong>
+                Travel
+            </strong>
+
+            <small>
+                Visit locations
+            </small>
+
+        </button>
+
+    </section>
+
+
+    <!-- LOG -->
+
+    <section class="card log-card">
+
+        <h2>
+            📜 Adventure Log
+        </h2>
+
+        <div id="log">
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- MODAL -->
+
+<div
+    id="modal"
+    class="modal hidden">
+
+    <div class="modal-content">
+
+        <button
+            class="close"
+            onclick="closeModal()">
+
+            ✕
+
+        </button>
+
+        <h2 id="modal-title">
+        </h2>
+
+        <div id="modal-body">
+        </div>
+
     </div>
 
-    <script src="game.js"></script>
+</div>
+
+
+<script src="game.js"></script>
 
 </body>
 </html>
