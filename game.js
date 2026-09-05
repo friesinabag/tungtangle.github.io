@@ -1,284 +1,16 @@
-// ============================================================
-// TUNG TANGLE
-// Complete game.js
-// 32x32 pixel-art sprite system
-// ============================================================
+/* ============================================================
+   TUNG TANGLE
+   Complete Game Engine
+   ============================================================ */
 
 
-// ============================================================
-// SPRITE SHEET
-// ============================================================
+/* ============================================================
+   CONFIGURATION
+   ============================================================ */
 
-const SPRITE_SHEET = "spritesheet.png";
-
-const spriteImage = new Image();
-
-spriteImage.src = SPRITE_SHEET;
-
-
-// ============================================================
-// SPRITE COORDINATES
-// Based on the supplied 1536x1024 sprite sheet
-// ============================================================
-
-const SPRITES = {
-
-    // ========================================================
-    // EVOLUTION SPRITES
-    // ========================================================
-
-    tung: {
-        x: 45,
-        y: 88,
-        w: 65,
-        h: 150
-    },
-
-    mega: {
-        x: 445,
-        y: 88,
-        w: 78,
-        h: 150
-    },
-
-    alpha: {
-        x: 792,
-        y: 72,
-        w: 90,
-        h: 165
-    },
-
-    shiny: {
-        x: 1188,
-        y: 72,
-        w: 90,
-        h: 165
-    },
-
-
-    // ========================================================
-    // IDLE
-    // ========================================================
-
-    idle: [
-        {
-            x: 48,
-            y: 372,
-            w: 50,
-            h: 95
-        },
-
-        {
-            x: 128,
-            y: 372,
-            w: 50,
-            h: 95
-        },
-
-        {
-            x: 210,
-            y: 372,
-            w: 50,
-            h: 95
-        },
-
-        {
-            x: 292,
-            y: 372,
-            w: 50,
-            h: 95
-        }
-    ],
-
-
-    // ========================================================
-    // WALK
-    // ========================================================
-
-    walk: [
-        {
-            x: 388,
-            y: 372,
-            w: 52,
-            h: 95
-        },
-
-        {
-            x: 468,
-            y: 372,
-            w: 52,
-            h: 95
-        },
-
-        {
-            x: 548,
-            y: 372,
-            w: 52,
-            h: 95
-        },
-
-        {
-            x: 628,
-            y: 372,
-            w: 52,
-            h: 95
-        }
-    ],
-
-
-    // ========================================================
-    // ATTACK
-    // ========================================================
-
-    attack: [
-
-        {
-            x: 695,
-            y: 370,
-            w: 75,
-            h: 100
-        },
-
-        {
-            x: 785,
-            y: 370,
-            w: 78,
-            h: 100
-        },
-
-        {
-            x: 875,
-            y: 365,
-            w: 105,
-            h: 105
-        }
-    ],
-
-
-    // ========================================================
-    // HURT
-    // ========================================================
-
-    hurt: {
-        x: 1010,
-        y: 372,
-        w: 75,
-        h: 95
-    },
-
-
-    // ========================================================
-    // VICTORY
-    // ========================================================
-
-    victory: [
-
-        {
-            x: 1128,
-            y: 372,
-            w: 75,
-            h: 95
-        },
-
-        {
-            x: 1210,
-            y: 372,
-            w: 75,
-            h: 95
-        }
-    ],
-
-
-    // ========================================================
-    // DEFEAT
-    // ========================================================
-
-    defeat: [
-
-        {
-            x: 1340,
-            y: 390,
-            w: 95,
-            h: 70
-        },
-
-        {
-            x: 1440,
-            y: 390,
-            w: 95,
-            h: 70
-        }
-    ],
-
-
-    // ========================================================
-    // ROLE SPRITES
-    // ========================================================
-
-    normal: {
-        x: 42,
-        y: 560,
-        w: 115,
-        h: 150
-    },
-
-    speed: {
-        x: 210,
-        y: 560,
-        w: 115,
-        h: 150
-    },
-
-    power: {
-        x: 390,
-        y: 560,
-        w: 115,
-        h: 150
-    },
-
-    defence: {
-        x: 565,
-        y: 560,
-        w: 115,
-        h: 150
-    },
-
-    explorer: {
-        x: 735,
-        y: 560,
-        w: 115,
-        h: 150
-    },
-
-    resting: {
-        x: 985,
-        y: 560,
-        w: 115,
-        h: 150
-    },
-
-    fighter: {
-        x: 1170,
-        y: 560,
-        w: 115,
-        h: 150
-    },
-
-    travel: {
-        x: 1360,
-        y: 560,
-        w: 115,
-        h: 150
-    }
-};
-
-
-// ============================================================
-// AI NAME POOL
-// ============================================================
+const SPRITE_SHEET = "tung-sprites.png";
 
 const AI_NAMES = [
-
     "Rocky",
     "Dave",
     "Zip",
@@ -292,68 +24,54 @@ const AI_NAMES = [
     "Zap",
     "Mortis",
     "E"
-
 ];
 
-
-// ============================================================
-// BASE STATS
-// EVERY TUNG STARTS THE SAME
-// ============================================================
-
 const BASE_STATS = {
-
-    level: 1,
-
     hp: 100,
     maxHp: 100,
 
     energy: 100,
     maxEnergy: 100,
 
-    xp: 0,
-    xpNeeded: 100,
-
     power: 10,
     defence: 5,
     speed: 5,
 
+    level: 1,
+    xp: 0,
+
     wins: 0,
 
-    location: "Tung Town"
+    day: 1,
 
+    location: "Tung Town",
+
+    species: "Tung",
+
+    spriteRole: "normal",
+
+    shiny: false
 };
 
 
-// ============================================================
-// GAME STATE
-// ============================================================
+/* ============================================================
+   GLOBAL GAME STATE
+   ============================================================ */
 
 const game = {
 
     player: {
-
-        ...BASE_STATS,
-
         name: "Chomper",
-
-        species: "Tung",
-
-        spriteRole: "normal",
-
-        shiny: false
-
-    },
-
-    inventory: {
-
-        apple: 2,
-
-        energyDrink: 1
-
+        ...BASE_STATS
     },
 
     ais: [],
+
+    inventory: {
+        apple: 2,
+        potion: 1,
+        energyDrink: 1
+    },
 
     log: [],
 
@@ -363,364 +81,321 @@ const game = {
 
     aiIndex: 0,
 
-    round: 1,
+    battleInProgress: false,
 
-    battleInProgress: false
+    currentBattle: null,
+
+    initialized: false
 
 };
 
 
-// ============================================================
-// RANDOM NUMBER
-// ============================================================
+/* ============================================================
+   SPRITE SHEET
+   ============================================================ */
+
+const spriteSheet = new Image();
+
+spriteSheet.src = SPRITE_SHEET;
+
+spriteSheet.onload = function () {
+
+    console.log("Tung sprite sheet loaded.");
+
+    updateUI();
+
+};
+
+spriteSheet.onerror = function () {
+
+    console.warn(
+        "Could not load " +
+        SPRITE_SHEET +
+        ". Check the filename."
+    );
+
+};
+
+
+/*
+    The supplied sprite sheet is a visual sprite atlas.
+
+    These source rectangles correspond to the different
+    characters/roles shown on the sheet.
+
+    They are scaled down to 32x32 when drawn.
+*/
+
+const SPRITES = {
+
+    normal: {
+        x: 48,
+        y: 84,
+        w: 55,
+        h: 155
+    },
+
+    idle: {
+        x: 50,
+        y: 370,
+        w: 55,
+        h: 100
+    },
+
+    walk: {
+        x: 390,
+        y: 370,
+        w: 55,
+        h: 100
+    },
+
+    attack: {
+        x: 680,
+        y: 370,
+        w: 70,
+        h: 100
+    },
+
+    hurt: {
+        x: 1015,
+        y: 370,
+        w: 70,
+        h: 100
+    },
+
+    victory: {
+        x: 1140,
+        y: 370,
+        w: 70,
+        h: 100
+    },
+
+    defeat: {
+        x: 1370,
+        y: 370,
+        w: 70,
+        h: 100
+    },
+
+    speed: {
+        x: 215,
+        y: 555,
+        w: 80,
+        h: 155
+    },
+
+    power: {
+        x: 405,
+        y: 555,
+        w: 90,
+        h: 155
+    },
+
+    defence: {
+        x: 590,
+        y: 555,
+        w: 90,
+        h: 155
+    },
+
+    explorer: {
+        x: 780,
+        y: 555,
+        w: 90,
+        h: 155
+    },
+
+    resting: {
+        x: 970,
+        y: 555,
+        w: 90,
+        h: 155
+    },
+
+    fighter: {
+        x: 1170,
+        y: 555,
+        w: 90,
+        h: 155
+    },
+
+    travel: {
+        x: 1370,
+        y: 555,
+        w: 90,
+        h: 155
+    },
+
+    mega: {
+        x: 450,
+        y: 85,
+        w: 90,
+        h: 155
+    },
+
+    alpha: {
+        x: 830,
+        y: 75,
+        w: 90,
+        h: 165
+    },
+
+    shinyAlpha: {
+        x: 1190,
+        y: 75,
+        w: 90,
+        h: 165
+    }
+
+};
+
+
+/* ============================================================
+   BASIC HELPERS
+   ============================================================ */
 
 function random(min, max) {
 
     return Math.floor(
-        Math.random() *
-        (max - min + 1)
+        Math.random() * (max - min + 1)
     ) + min;
 
 }
 
 
-// ============================================================
-// SHUFFLE
-// ============================================================
+function clamp(value, min, max) {
 
-function shuffle(array) {
-
-    for (
-        let i = array.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() *
-                (i + 1)
-            );
-
-        [
-            array[i],
-            array[j]
-        ] =
-        [
-            array[j],
-            array[i]
-        ];
-
-    }
-
-    return array;
-
-}
-
-
-// ============================================================
-// SPECIES
-// ============================================================
-
-function getSpecies(level) {
-
-    if (level >= 10) {
-
-        return "Alpha Tung";
-
-    }
-
-    if (level >= 5) {
-
-        return "Mega Tung";
-
-    }
-
-    return "Tung";
-
-}
-
-
-// ============================================================
-// GET EVOLUTION SPRITE
-// ============================================================
-
-function getEvolutionSprite(tung) {
-
-    if (tung.shiny && tung.level >= 10) {
-
-        return SPRITES.shiny;
-
-    }
-
-    if (tung.level >= 10) {
-
-        return SPRITES.alpha;
-
-    }
-
-    if (tung.level >= 5) {
-
-        return SPRITES.mega;
-
-    }
-
-    return SPRITES.tung;
-
-}
-
-
-// ============================================================
-// DRAW SPRITE
-//
-// Everything is rendered onto a 32x32 canvas.
-// imageSmoothingEnabled = false keeps the pixel-art look.
-// ============================================================
-
-function drawSprite(canvas, sprite) {
-
-    if (!canvas || !sprite) return;
-
-    const ctx =
-        canvas.getContext("2d");
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
+    return Math.max(
+        min,
+        Math.min(max, value)
     );
 
-    ctx.imageSmoothingEnabled = false;
+}
 
 
-    if (!spriteImage.complete) {
+function randomChoice(array) {
 
-        spriteImage.onload = () => {
-
-            drawSprite(
-                canvas,
-                sprite
-            );
-
-        };
-
-        return;
-
-    }
-
-
-    const scale =
-        Math.min(
-
-            32 / sprite.w,
-
-            32 / sprite.h
-
-        );
-
-
-    const width =
-        Math.max(
-            1,
-            Math.round(
-                sprite.w * scale
-            )
-        );
-
-
-    const height =
-        Math.max(
-            1,
-            Math.round(
-                sprite.h * scale
-            )
-        );
-
-
-    const x =
+    return array[
         Math.floor(
-            (32 - width) / 2
-        );
+            Math.random() * array.length
+        )
+    ];
+
+}
 
 
-    const y =
-        Math.floor(
-            (32 - height) / 2
-        );
+function sleep(ms) {
 
-
-    ctx.drawImage(
-
-        spriteImage,
-
-        sprite.x,
-        sprite.y,
-        sprite.w,
-        sprite.h,
-
-        x,
-        y,
-        width,
-        height
-
+    return new Promise(
+        resolve => setTimeout(resolve, ms)
     );
 
 }
 
 
-// ============================================================
-// DRAW EVOLUTION
-// ============================================================
+/* ============================================================
+   NAME SELECTION
+   ============================================================ */
 
-function drawEvolutionSprite(
-    canvas,
-    tung
-) {
+function choosePlayerName() {
 
-    drawSprite(
-        canvas,
-        getEvolutionSprite(tung)
-    );
-
-}
-
-
-// ============================================================
-// DRAW ROLE
-// ============================================================
-
-function drawRoleSprite(
-    canvas,
-    role
-) {
-
-    const sprite =
-        SPRITES[role] ||
-        SPRITES.normal;
-
-
-    drawSprite(
-        canvas,
-        sprite
-    );
-
-}
-
-
-// ============================================================
-// DRAW DEFAULT SPRITE
-// ============================================================
-
-function drawTungSprite(
-    canvas,
-    tung
-) {
-
-    if (
-        tung.spriteRole &&
-        tung.spriteRole !== "normal"
-    ) {
-
-        drawRoleSprite(
-            canvas,
-            tung.spriteRole
-        );
-
-    }
-
-    else {
-
-        drawEvolutionSprite(
-            canvas,
-            tung
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// PLAYER NAME
-// ============================================================
-
-function chooseName() {
+    const currentName =
+        game.player.name || "";
 
     let name =
         prompt(
-            "What do you want to name your Tung?"
+            "Choose your Tung's name:",
+            currentName
         );
 
 
     if (
-        !name ||
-        !name.trim()
+        name === null ||
+        name.trim() === ""
     ) {
 
-        name = "Chomper";
+        name =
+            currentName ||
+            "Chomper";
 
     }
 
-
-    // Limit extremely long names
 
     name =
         name
             .trim()
-            .substring(
-                0,
-                18
-            );
+            .substring(0, 18);
 
 
     game.player.name =
         name;
 
+
+    updateUI();
+
+    addLog(
+        `🐸 Your Tung is called ${name}!`
+    );
+
 }
 
 
-// ============================================================
-// CREATE AI
-// ============================================================
+/* ============================================================
+   AI CREATION
+   ============================================================ */
 
 function createAI(name) {
 
-    const ai = {
-
-        ...BASE_STATS,
+    return {
 
         name: name,
+
+        hp: 100,
+        maxHp: 100,
+
+        energy: 100,
+        maxEnergy: 100,
+
+        power: 10,
+        defence: 5,
+        speed: 5,
+
+        level: 1,
+        xp: 0,
+
+        wins: 0,
+
+        day: 1,
+
+        location: "Tung Town",
 
         species: "Tung",
 
         spriteRole: "normal",
 
-        shiny:
-            Math.random() < 0.03,
+        shiny: false,
 
-        lastAction:
-            "Waiting..."
+        lastAction: "Waiting..."
 
     };
-
-
-    return ai;
 
 }
 
 
-// ============================================================
-// CREATE NEW ROUND
-// RANDOM AI AMOUNT + NAMES
-// ============================================================
+/* ============================================================
+   NEW ROUND / AI ROSTER
+   ============================================================ */
 
 function createAIs() {
 
     game.ais = [];
 
 
-    // Random amount between 5 and 13
+    /*
+       Random number between 5 and 13.
+
+       There are exactly 13 names in the pool.
+    */
 
     const amount =
         random(
@@ -729,30 +404,10 @@ function createAIs() {
         );
 
 
-    let names =
-        shuffle(
-            [...AI_NAMES]
+    const shuffled =
+        [...AI_NAMES].sort(
+            () => Math.random() - 0.5
         );
-
-
-    // If the player chose an AI name,
-    // avoid using that name when possible.
-
-    const filtered =
-        names.filter(
-            name =>
-                name.toLowerCase() !==
-                game.player.name.toLowerCase()
-        );
-
-
-    if (
-        filtered.length >= amount
-    ) {
-
-        names = filtered;
-
-    }
 
 
     for (
@@ -763,38 +418,15 @@ function createAIs() {
 
         game.ais.push(
             createAI(
-                names[i]
+                shuffled[i]
             )
         );
 
     }
 
-}
-
-
-// ============================================================
-// START GAME
-// ============================================================
-
-function startGame() {
-
-    chooseName();
-
-    createAIs();
-
 
     addLog(
-        `🟫 Welcome, ${game.player.name}!`
-    );
-
-
-    addLog(
-        `🏆 ROUND ${game.round} has begun!`
-    );
-
-
-    addLog(
-        `🤖 ${game.ais.length} AI Tungs have entered the round!`
+        `🤖 ${amount} rival Tungs have entered this round!`
     );
 
 
@@ -803,15 +435,13 @@ function startGame() {
 }
 
 
-// ============================================================
-// LOG
-// ============================================================
+/* ============================================================
+   LOGGING
+   ============================================================ */
 
 function addLog(message) {
 
-    game.log.unshift(
-        message
-    );
+    game.log.unshift(message);
 
 
     if (
@@ -828,16 +458,10 @@ function addLog(message) {
 }
 
 
-// ============================================================
-// UPDATE LOG
-// ============================================================
-
 function updateLog() {
 
     const log =
-        document.getElementById(
-            "log"
-        );
+        document.getElementById("log");
 
 
     if (!log) return;
@@ -845,121 +469,131 @@ function updateLog() {
 
     log.innerHTML =
         game.log
+            .slice(0, 40)
             .map(
-                message =>
-                    `<div class="log-entry">${message}</div>`
+                item =>
+                    `<div class="log-entry">${escapeHTML(item)}</div>`
             )
             .join("");
 
 }
 
 
-// ============================================================
-// XP
-// ============================================================
+function escapeHTML(text) {
 
-function gainXP(amount) {
+    const div =
+        document.createElement("div");
 
-    game.player.xp += amount;
+    div.textContent =
+        text;
 
-
-    addLog(
-        `⭐ ${game.player.name} gained ${amount} XP!`
-    );
-
-
-    while (
-        game.player.xp >=
-        game.player.xpNeeded
-    ) {
-
-        game.player.xp -=
-            game.player.xpNeeded;
-
-        levelUp();
-
-    }
-
-
-    updateUI();
+    return div.innerHTML;
 
 }
 
 
-// ============================================================
-// LEVEL UP
-// ============================================================
+/* ============================================================
+   TURN SYSTEM
+   ============================================================ */
 
-function levelUp() {
+function setTurn(turn) {
 
-    const oldSpecies =
-        game.player.species;
-
-
-    game.player.level++;
-
-    game.player.maxHp += 10;
-
-    game.player.hp =
-        game.player.maxHp;
+    game.turn =
+        turn;
 
 
-    game.player.maxEnergy += 5;
-
-    game.player.energy =
-        game.player.maxEnergy;
-
-
-    game.player.power += 2;
-
-    game.player.defence += 1;
-
-    game.player.speed += 1;
-
-
-    game.player.xpNeeded =
-        Math.floor(
-            game.player.xpNeeded *
-            1.25
+    const panel =
+        document.getElementById(
+            "turn-panel"
         );
 
 
-    game.player.species =
-        getSpecies(
-            game.player.level
+    const icon =
+        document.getElementById(
+            "turn-icon"
         );
 
 
-    addLog(
-        `🎉 LEVEL UP! ${game.player.name} is now level ${game.player.level}!`
+    const title =
+        document.getElementById(
+            "turn-title"
+        );
+
+
+    const description =
+        document.getElementById(
+            "turn-description"
+        );
+
+
+    if (!panel) return;
+
+
+    panel.classList.remove(
+        "turn-player",
+        "turn-ai"
     );
 
 
     if (
-        oldSpecies !==
-        game.player.species
+        turn === "player"
     ) {
 
-        if (
-            game.player.species ===
-            "Mega Tung"
-        ) {
+        panel.classList.add(
+            "turn-player"
+        );
 
-            addLog(
-                `🧬 ${game.player.name} evolved into MEGA TUNG!`
-            );
+
+        if (icon) {
+            icon.textContent = "🟢";
+        }
+
+
+        if (title) {
+            title.textContent =
+                "YOUR TURN";
+        }
+
+
+        if (description) {
+            description.textContent =
+                "Choose an action.";
+        }
+
+    }
+    else if (
+        turn === "ai"
+    ) {
+
+        panel.classList.add(
+            "turn-ai"
+        );
+
+
+        if (icon) {
+            icon.textContent = "🤖";
+        }
+
+
+        if (title) {
+
+            const ai =
+                game.ais[
+                    game.aiIndex
+                ];
+
+            title.textContent =
+                ai
+                    ? `${ai.name.toUpperCase()}'S TURN`
+                    : "AI TURN";
 
         }
 
 
-        if (
-            game.player.species ===
-            "Alpha Tung"
-        ) {
+        if (description) {
 
-            addLog(
-                `👑 ${game.player.name} evolved into ALPHA TUNG!`
-            );
+            description.textContent =
+                "The rival Tungs are taking their actions.";
 
         }
 
@@ -968,9 +602,9 @@ function levelUp() {
 }
 
 
-// ============================================================
-// ENERGY
-// ============================================================
+/* ============================================================
+   ENERGY
+   ============================================================ */
 
 function spendEnergy(amount) {
 
@@ -997,9 +631,141 @@ function spendEnergy(amount) {
 }
 
 
-// ============================================================
-// PLAYER ACTION
-// ============================================================
+/* ============================================================
+   XP / LEVELS
+   ============================================================ */
+
+function gainXP(amount) {
+
+    game.player.xp +=
+        amount;
+
+
+    while (
+        game.player.xp >= 100
+    ) {
+
+        game.player.xp -=
+            100;
+
+        levelUp();
+
+    }
+
+
+    updateUI();
+
+}
+
+
+function levelUp() {
+
+    game.player.level++;
+
+
+    game.player.maxHp +=
+        10;
+
+
+    game.player.hp =
+        game.player.maxHp;
+
+
+    game.player.maxEnergy +=
+        5;
+
+
+    game.player.energy =
+        game.player.maxEnergy;
+
+
+    addLog(
+        `🎉 ${game.player.name} reached Level ${game.player.level}!`
+    );
+
+
+    checkEvolution();
+
+}
+
+
+function checkEvolution() {
+
+    if (
+        game.player.level >= 10
+    ) {
+
+        game.player.species =
+            "Alpha Tung";
+
+
+        game.player.spriteRole =
+            "alpha";
+
+
+        /*
+           Small chance to become Shiny Alpha.
+
+           Once shiny, it stays shiny.
+        */
+
+        if (
+            !game.player.shiny &&
+            Math.random() < 0.08
+        ) {
+
+            game.player.shiny =
+                true;
+
+            game.player.spriteRole =
+                "shinyAlpha";
+
+
+            addLog(
+                `✨ INCREDIBLE! ${game.player.name} became a SHINY ALPHA TUNG!`
+            );
+
+        }
+
+        else {
+
+            addLog(
+                `👑 ${game.player.name} evolved into ALPHA TUNG!`
+            );
+
+        }
+
+    }
+    else if (
+        game.player.level >= 5
+    ) {
+
+        game.player.species =
+            "Mega Tung";
+
+
+        game.player.spriteRole =
+            "mega";
+
+
+        addLog(
+            `🔥 ${game.player.name} evolved into MEGA TUNG!`
+        );
+
+    }
+    else {
+
+        game.player.species =
+            "Tung";
+
+    }
+
+}
+
+
+/* ============================================================
+   PLAYER ACTION
+   ============================================================ */
 
 function playerAction(action) {
 
@@ -1021,25 +787,15 @@ function playerAction(action) {
     }
 
 
-    if (
-        action === "fight"
-    ) {
-
-        openFight();
-
-        return;
-
-    }
+    let successful =
+        false;
 
 
-    let success = true;
-
-
-    switch(action) {
+    switch (action) {
 
         case "explore":
 
-            success =
+            successful =
                 playerExplore();
 
             break;
@@ -1047,7 +803,7 @@ function playerAction(action) {
 
         case "power":
 
-            success =
+            successful =
                 playerTrain(
                     "power"
                 );
@@ -1057,7 +813,7 @@ function playerAction(action) {
 
         case "defence":
 
-            success =
+            successful =
                 playerTrain(
                     "defence"
                 );
@@ -1067,7 +823,7 @@ function playerAction(action) {
 
         case "speed":
 
-            success =
+            successful =
                 playerTrain(
                     "speed"
                 );
@@ -1077,15 +833,28 @@ function playerAction(action) {
 
         case "rest":
 
-            playerRest();
+            successful =
+                playerRest();
 
             break;
+
+
+        case "fight":
+
+            openFight();
+
+            return;
+
+
+        default:
+
+            return;
 
     }
 
 
     if (
-        success !== false
+        successful
     ) {
 
         finishPlayerTurn();
@@ -1095,9 +864,56 @@ function playerAction(action) {
 }
 
 
-// ============================================================
-// EXPLORE
-// ============================================================
+/* ============================================================
+   TRAINING
+   ============================================================ */
+
+function playerTrain(stat) {
+
+    if (
+        !spendEnergy(15)
+    ) {
+
+        return false;
+
+    }
+
+
+    const increase =
+        random(1, 15);
+
+
+    game.player[stat] +=
+        increase;
+
+
+    game.player.spriteRole =
+        stat;
+
+
+    gainXP(10);
+
+
+    const statName =
+        stat
+            .charAt(0)
+            .toUpperCase() +
+        stat.slice(1);
+
+
+    addLog(
+        `💪 ${game.player.name} trained ${statName} and gained +${increase}!`
+    );
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   EXPLORE
+   ============================================================ */
 
 function playerExplore() {
 
@@ -1114,47 +930,57 @@ function playerExplore() {
         "explorer";
 
 
+    const xp =
+        random(5, 25);
+
+
+    gainXP(xp);
+
+
     const roll =
         Math.random();
 
 
     if (
-        roll < 0.4
-    ) {
-
-        const xp =
-            random(
-                10,
-                30
-            );
-
-
-        gainXP(xp);
-
-
-        addLog(
-            `🌲 ${game.player.name} explored and found ${xp} XP!`
-        );
-
-    }
-
-    else if (
-        roll < 0.65
+        roll < 0.25
     ) {
 
         game.inventory.apple++;
 
 
         addLog(
-            `🍎 ${game.player.name} found an Apple!`
+            `🌲 ${game.player.name} explored and found an Apple!`
         );
 
     }
+    else if (
+        roll < 0.40
+    ) {
 
+        game.inventory.potion++;
+
+
+        addLog(
+            `🌲 ${game.player.name} found a Health Potion!`
+        );
+
+    }
+    else if (
+        roll < 0.50
+    ) {
+
+        game.inventory.energyDrink++;
+
+
+        addLog(
+            `🌲 ${game.player.name} found an Energy Drink!`
+        );
+
+    }
     else {
 
         addLog(
-            `🌲 ${game.player.name} explored the area.`
+            `🌲 ${game.player.name} explored and gained ${xp} XP!`
         );
 
     }
@@ -1165,102 +991,89 @@ function playerExplore() {
 }
 
 
-// ============================================================
-// TRAIN
-// ============================================================
-
-function playerTrain(stat) {
-
-    if (
-        !spendEnergy(15)
-    ) {
-
-        return false;
-
-    }
-
-
-    game.player[stat]++;
-
-
-    game.player.spriteRole =
-        stat;
-
-
-    gainXP(10);
-
-
-    addLog(
-        `💪 ${game.player.name} trained ${stat}!`
-    );
-
-
-    return true;
-
-}
-
-
-// ============================================================
-// REST
-// ============================================================
+/* ============================================================
+   REST
+   ============================================================ */
 
 function playerRest() {
-
-    game.player.hp =
-        Math.min(
-            game.player.maxHp,
-            game.player.hp + 30
-        );
-
-
-    game.player.energy =
-        Math.min(
-            game.player.maxEnergy,
-            game.player.energy + 30
-        );
-
 
     game.player.spriteRole =
         "resting";
 
 
+    const hp =
+        random(15, 30);
+
+
+    const energy =
+        random(15, 30);
+
+
+    game.player.hp =
+        clamp(
+            game.player.hp + hp,
+            0,
+            game.player.maxHp
+        );
+
+
+    game.player.energy =
+        clamp(
+            game.player.energy + energy,
+            0,
+            game.player.maxEnergy
+        );
+
+
+    game.player.day++;
+
+
     addLog(
-        `💤 ${game.player.name} rested and recovered!`
+        `💤 ${game.player.name} rested and recovered ${hp} HP and ${energy} Energy.`
     );
+
+
+    return true;
 
 }
 
 
-// ============================================================
-// FINISH PLAYER TURN
-// ============================================================
+/* ============================================================
+   FINISH PLAYER TURN
+   ============================================================ */
 
 function finishPlayerTurn() {
 
-    game.turn = "ai";
+    game.turn =
+        "ai";
 
-    game.aiIndex = 0;
+
+    game.aiIndex =
+        0;
+
+
+    setTurn("ai");
 
 
     updateUI();
 
 
     addLog(
-        "🤖 The AI Tungs are taking their turns..."
+        "🤖 AI TURN BEGINS..."
     );
 
 
     setTimeout(
         runNextAI,
-        700
+        600
     );
 
 }
 
 
-// ============================================================
-// RUN NEXT AI
-// ============================================================
+/* ============================================================
+   AI TURN LOOP
+   ============================================================ */
 
 function runNextAI() {
 
@@ -1282,28 +1095,39 @@ function runNextAI() {
         ];
 
 
-    game.turn = "ai";
+    if (!ai) {
+
+        finishAITurns();
+
+        return;
+
+    }
+
+
+    setTurn("ai");
 
 
     updateUI();
+
+
+    /*
+       Highlight current AI.
+    */
+
+    highlightAI(
+        game.aiIndex
+    );
+
+
+    addLog(
+        `🤖 ${ai.name}'s turn.`
+    );
 
 
     setTimeout(
         () => {
 
             aiTakeTurn(ai);
-
-
-            updateUI();
-
-
-            game.aiIndex++;
-
-
-            setTimeout(
-                runNextAI,
-                700
-            );
 
         },
         500
@@ -1312,178 +1136,367 @@ function runNextAI() {
 }
 
 
-// ============================================================
-// AI TURN
-// ============================================================
+/* ============================================================
+   AI ACTION
+   ============================================================ */
 
 function aiTakeTurn(ai) {
+
+    if (
+        !ai ||
+        ai.hp <= 0
+    ) {
+
+        game.aiIndex++;
+
+        setTimeout(
+            runNextAI,
+            500
+        );
+
+        return;
+
+    }
+
 
     const roll =
         Math.random();
 
 
+    /*
+       15% CHANCE TO ATTACK PLAYER
+    */
+
     if (
-        roll < 0.22
+        roll < 0.15
     ) {
 
-        ai.power++;
+        ai.spriteRole =
+            "fighter";
+
+
+        ai.lastAction =
+            "Attacked YOU";
+
+
+        updateUI();
+
+
+        addLog(
+            `⚔️ ${ai.name} decided to attack ${game.player.name}!`
+        );
+
+
+        /*
+           Stop normal AI loop while battle occurs.
+        */
+
+        startAIAttack(
+            ai
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+       POWER
+    */
+
+    if (
+        roll < 0.33
+    ) {
+
+        const increase =
+            random(1, 15);
+
+
+        ai.power +=
+            increase;
+
 
         ai.spriteRole =
             "power";
 
+
         ai.lastAction =
-            "Trained Power";
+            `Power +${increase}`;
 
 
         addLog(
-            `🤖 ${ai.name} trained Power!`
+            `💪 ${ai.name} trained Power and gained +${increase}!`
         );
-
-
-        return;
 
     }
 
 
-    if (
-        roll < 0.42
+    /*
+       DEFENCE
+    */
+
+    else if (
+        roll < 0.51
     ) {
 
-        ai.defence++;
+        const increase =
+            random(1, 15);
+
+
+        ai.defence +=
+            increase;
+
 
         ai.spriteRole =
             "defence";
 
+
         ai.lastAction =
-            "Trained Defence";
+            `Defence +${increase}`;
 
 
         addLog(
-            `🤖 ${ai.name} trained Defence!`
+            `🛡️ ${ai.name} trained Defence and gained +${increase}!`
         );
-
-
-        return;
 
     }
 
 
-    if (
-        roll < 0.58
+    /*
+       SPEED
+    */
+
+    else if (
+        roll < 0.69
     ) {
 
-        ai.speed++;
+        const increase =
+            random(1, 15);
+
+
+        ai.speed +=
+            increase;
+
 
         ai.spriteRole =
             "speed";
 
+
         ai.lastAction =
-            "Trained Speed";
+            `Speed +${increase}`;
 
 
         addLog(
-            `🤖 ${ai.name} trained Speed!`
+            `⚡ ${ai.name} trained Speed and gained +${increase}!`
         );
-
-
-        return;
 
     }
 
 
-    if (
-        roll < 0.76
+    /*
+       EXPLORE
+    */
+
+    else if (
+        roll < 0.84
     ) {
 
         const xp =
-            random(
-                5,
-                20
-            );
+            random(5, 20);
 
 
-        ai.xp += xp;
+        ai.xp +=
+            xp;
+
 
         ai.spriteRole =
             "explorer";
+
 
         ai.lastAction =
             `Explored +${xp} XP`;
 
 
         addLog(
-            `🤖 ${ai.name} explored and gained ${xp} XP!`
+            `🌲 ${ai.name} explored and gained ${xp} XP!`
         );
 
 
-        return;
+        aiLevelCheck(
+            ai
+        );
 
     }
 
 
-    ai.hp =
-        Math.min(
-            ai.maxHp,
-            ai.hp + 25
+    /*
+       REST
+    */
+
+    else {
+
+        const recovered =
+            random(15, 30);
+
+
+        ai.hp =
+            clamp(
+                ai.hp + recovered,
+                0,
+                ai.maxHp
+            );
+
+
+        ai.energy =
+            clamp(
+                ai.energy + recovered,
+                0,
+                ai.maxEnergy
+            );
+
+
+        ai.spriteRole =
+            "resting";
+
+
+        ai.lastAction =
+            "Rested";
+
+
+        addLog(
+            `💤 ${ai.name} rested and recovered ${recovered} HP.`
         );
 
-
-    ai.energy =
-        Math.min(
-            ai.maxEnergy,
-            ai.energy + 25
-        );
+    }
 
 
-    ai.spriteRole =
-        "resting";
+    updateUI();
 
 
-    ai.lastAction =
-        "Rested";
+    /*
+       Continue to next AI.
+    */
+
+    game.aiIndex++;
 
 
-    addLog(
-        `🤖 ${ai.name} rested.`
+    setTimeout(
+        runNextAI,
+        700
     );
 
 }
 
 
-// ============================================================
-// FINISH ALL AI TURNS
-// START NEW ROUND
-// ============================================================
+/* ============================================================
+   AI LEVEL CHECK
+   ============================================================ */
+
+function aiLevelCheck(ai) {
+
+    while (
+        ai.xp >= 100
+    ) {
+
+        ai.xp -=
+            100;
+
+
+        ai.level++;
+
+
+        ai.maxHp +=
+            10;
+
+
+        ai.hp =
+            ai.maxHp;
+
+
+        ai.maxEnergy +=
+            5;
+
+
+        ai.energy =
+            ai.maxEnergy;
+
+
+        if (
+            ai.level >= 10
+        ) {
+
+            ai.species =
+                "Alpha Tung";
+
+
+            ai.spriteRole =
+                "alpha";
+
+        }
+        else if (
+            ai.level >= 5
+        ) {
+
+            ai.species =
+                "Mega Tung";
+
+
+            ai.spriteRole =
+                "mega";
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   FINISH AI TURNS
+   ============================================================ */
 
 function finishAITurns() {
 
-    game.turn = "player";
+    game.turn =
+        "player";
 
-    game.aiIndex = 0;
+
+    game.aiIndex =
+        0;
+
 
     game.turnNumber++;
 
-    game.round++;
+
+    game.player.day++;
+
+
+    /*
+       Small passive energy regeneration.
+    */
+
+    game.player.energy =
+        clamp(
+            game.player.energy + 10,
+            0,
+            game.player.maxEnergy
+        );
+
+
+    setTurn("player");
 
 
     addLog(
-        `🏆 ROUND ${game.round - 1} complete!`
+        `🟢 YOUR TURN — Round ${game.turnNumber}`
     );
 
 
-    // Create completely new AI lineup
+    /*
+       NEW AI ROSTER EVERY ROUND
+    */
 
     createAIs();
-
-
-    addLog(
-        `🔄 ROUND ${game.round} begins!`
-    );
-
-
-    addLog(
-        `🤖 ${game.ais.length} new AI Tungs have entered!`
-    );
 
 
     updateUI();
@@ -1491,95 +1504,169 @@ function finishAITurns() {
 }
 
 
-// ============================================================
-// FIGHT MENU
-// ============================================================
+/* ============================================================
+   AI HIGHLIGHT
+   ============================================================ */
+
+function highlightAI(index) {
+
+    document
+        .querySelectorAll(".ai")
+        .forEach(
+            element =>
+                element.classList.remove(
+                    "active"
+                )
+        );
+
+
+    const current =
+        document.querySelector(
+            `.ai[data-index="${index}"]`
+        );
+
+
+    if (current) {
+
+        current.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   FIGHT MENU
+   ============================================================ */
 
 function openFight() {
 
     if (
         game.turn !== "player"
-    ) return;
+    ) {
+
+        return;
+
+    }
 
 
-    let html =
-        `<div class="rivals">`;
+    if (
+        game.battleInProgress
+    ) {
+
+        return;
+
+    }
 
 
-    game.ais.forEach(
-        (ai,index) => {
-
-            html += `
-
-                <button
-                    class="rival"
-                    onclick="startFight(${index})"
-                >
-
-                    <span class="rival-name">
-
-                        ${ai.shiny ? "✨ " : ""}
-
-                        ${ai.name}
-
-                    </span>
-
-                    <br>
-
-                    ❤️ ${ai.hp}/${ai.maxHp}
-
-                    <br>
-
-                    💪 ${ai.power}
-
-                    &nbsp;
-
-                    🛡️ ${ai.defence}
-
-                    &nbsp;
-
-                    ⚡ ${ai.speed}
-
-                    <br><br>
-
-                    LEVEL ${ai.level}
-
-                </button>
-
-            `;
-
-        }
-    );
+    const alive =
+        game.ais.filter(
+            ai =>
+                ai.hp > 0
+        );
 
 
-    html +=
-        `</div>`;
+    if (
+        alive.length === 0
+    ) {
+
+        addLog(
+            "⚔️ There are no available rivals."
+        );
+
+
+        return;
+
+    }
+
+
+    const buttons =
+        alive
+            .map(
+                ai => {
+
+                    const index =
+                        game.ais.indexOf(
+                            ai
+                        );
+
+
+                    return `
+
+                    <button
+                        class="rival-button"
+                        onclick="startFight(${index})"
+                    >
+
+                        ⚔️ ${escapeHTML(ai.name)}
+
+                        <span>
+                            Lv ${ai.level}
+                            •
+                            ⚔️ ${ai.power}
+                            •
+                            🛡️ ${ai.defence}
+                            •
+                            ⚡ ${ai.speed}
+                        </span>
+
+                    </button>
+
+                    `;
+
+                }
+            )
+            .join("");
 
 
     showModal(
+
         "⚔️ CHOOSE YOUR OPPONENT",
-        html
+
+        `
+
+        <div class="rivals">
+
+            ${buttons}
+
+        </div>
+
+        `
+
     );
 
 }
 
 
-// ============================================================
-// START BATTLE
-// ============================================================
+/* ============================================================
+   PLAYER STARTS BATTLE
+   ============================================================ */
 
 function startFight(index) {
 
     if (
         game.turn !== "player"
-    ) return;
+    ) {
+
+        return;
+
+    }
 
 
     const enemy =
         game.ais[index];
 
 
-    if (!enemy) return;
+    if (
+        !enemy ||
+        enemy.hp <= 0
+    ) {
+
+        return;
+
+    }
 
 
     if (
@@ -1591,38 +1678,34 @@ function startFight(index) {
     }
 
 
-    closeModal();
-
-
-    game.turn =
-        "fight";
-
     game.battleInProgress =
         true;
 
 
-    game.player.spriteRole =
-        "fighter";
+    game.turn =
+        "battle";
 
 
-    updateUI();
-
-
-    const playerHP =
+    let playerHP =
         game.player.hp;
 
 
-    const enemyHP =
+    let enemyHP =
         enemy.hp;
 
 
-    const playerMax =
-        game.player.maxHp;
+    let finished =
+        false;
 
 
-    const enemyMax =
-        enemy.maxHp;
+    let playerTurn =
+        game.player.speed >=
+        enemy.speed;
 
+
+    /*
+       Battle UI
+    */
 
     showModal(
 
@@ -1642,10 +1725,16 @@ function startFight(index) {
                         height="32"
                     ></canvas>
 
-                    <div class="battle-name player-name">
+                    <div class="battle-name">
+                        ${escapeHTML(
+                            game.player.name
+                        )}
+                    </div>
 
-                        ${game.player.name}
-
+                    <div class="battle-stats">
+                        💪 ${game.player.power}
+                        🛡️ ${game.player.defence}
+                        ⚡ ${game.player.speed}
                     </div>
 
                     <div class="battle-hp">
@@ -1662,7 +1751,7 @@ function startFight(index) {
                         id="battle-player-text"
                         class="battle-hp-text"
                     >
-                        ${playerHP}/${playerMax}
+                        ${playerHP}/${game.player.maxHp}
                     </div>
 
                 </div>
@@ -1681,10 +1770,16 @@ function startFight(index) {
                         height="32"
                     ></canvas>
 
-                    <div class="battle-name enemy-name">
+                    <div class="battle-name">
+                        ${escapeHTML(
+                            enemy.name
+                        )}
+                    </div>
 
-                        ${enemy.name}
-
+                    <div class="battle-stats">
+                        💪 ${enemy.power}
+                        🛡️ ${enemy.defence}
+                        ⚡ ${enemy.speed}
                     </div>
 
                     <div class="battle-hp">
@@ -1701,7 +1796,7 @@ function startFight(index) {
                         id="battle-enemy-text"
                         class="battle-hp-text"
                     >
-                        ${enemyHP}/${enemyMax}
+                        ${enemyHP}/${enemy.maxHp}
                     </div>
 
                 </div>
@@ -1713,7 +1808,7 @@ function startFight(index) {
                 id="battle-turn"
                 class="battle-turn"
             >
-                ⚔️ BATTLE STARTING...
+                ⚔️ BATTLE!
             </div>
 
 
@@ -1721,6 +1816,19 @@ function startFight(index) {
                 id="battle-log"
                 class="battle-log"
             ></div>
+
+
+            <div class="battle-controls">
+
+                <button
+                    id="run-button"
+                    class="run-button"
+                    onclick="attemptRun()"
+                >
+                    🏃 RUN
+                </button>
+
+            </div>
 
         </div>
 
@@ -1741,47 +1849,29 @@ function startFight(index) {
         );
 
 
-    drawEvolutionSprite(
+    drawTungSprite(
         playerCanvas,
-        game.player
+        game.player,
+        "normal"
     );
 
 
-    drawEvolutionSprite(
+    drawTungSprite(
         enemyCanvas,
-        enemy
+        enemy,
+        "normal"
     );
 
-
-    let currentPlayerHP =
-        playerHP;
-
-
-    let currentEnemyHP =
-        enemyHP;
-
-
-    let playerTurn =
-        true;
-
-
-    let finished =
-        false;
-
-
-    const battleLog =
-        document.getElementById(
-            "battle-log"
-        );
-
-
-    // ========================================================
-    // BATTLE MESSAGE
-    // ========================================================
 
     function battleMessage(message) {
 
-        if (!battleLog) return;
+        const log =
+            document.getElementById(
+                "battle-log"
+            );
+
+
+        if (!log) return;
 
 
         const event =
@@ -1798,20 +1888,16 @@ function startFight(index) {
             message;
 
 
-        battleLog.appendChild(
+        log.appendChild(
             event
         );
 
 
-        battleLog.scrollTop =
-            battleLog.scrollHeight;
+        log.scrollTop =
+            log.scrollHeight;
 
     }
 
-
-    // ========================================================
-    // UPDATE BATTLE UI
-    // ========================================================
 
     function updateBattleUI() {
 
@@ -1848,10 +1934,11 @@ function startFight(index) {
         if (playerBar) {
 
             playerBar.style.width =
-                `${Math.max(
+                `${clamp(
+                    playerHP /
+                    game.player.maxHp *
+                    100,
                     0,
-                    currentPlayerHP /
-                    playerMax *
                     100
                 )}%`;
 
@@ -1861,10 +1948,11 @@ function startFight(index) {
         if (enemyBar) {
 
             enemyBar.style.width =
-                `${Math.max(
+                `${clamp(
+                    enemyHP /
+                    enemy.maxHp *
+                    100,
                     0,
-                    currentEnemyHP /
-                    enemyMax *
                     100
                 )}%`;
 
@@ -1874,7 +1962,7 @@ function startFight(index) {
         if (playerText) {
 
             playerText.textContent =
-                `${currentPlayerHP}/${playerMax}`;
+                `${playerHP}/${game.player.maxHp}`;
 
         }
 
@@ -1882,7 +1970,7 @@ function startFight(index) {
         if (enemyText) {
 
             enemyText.textContent =
-                `${currentEnemyHP}/${enemyMax}`;
+                `${enemyHP}/${enemy.maxHp}`;
 
         }
 
@@ -1891,335 +1979,314 @@ function startFight(index) {
 
             turnText.textContent =
                 playerTurn
-                    ? `🟢 ${game.player.name}'s turn`
-                    : `🔴 ${enemy.name}'s turn`;
+                    ? `🟢 ${game.player.name}'S TURN`
+                    : `🔴 ${enemy.name}'S TURN`;
 
         }
 
     }
 
 
-    // ========================================================
-    // ATTACK ANIMATION
-    // ========================================================
+    /*
+       PLAYER ATTACK
+    */
 
-    function playAttack(
-        canvas,
-        callback
-    ) {
+    function playerAttack() {
 
-        const frames =
-            SPRITES.attack;
+        if (
+            finished
+        ) {
 
+            return;
 
-        let frame =
-            0;
+        }
 
 
-        function next() {
-
-            if (!canvas) {
-
-                callback();
-
-                return;
-
-            }
+        game.player.spriteRole =
+            "attack";
 
 
-            drawSprite(
-                canvas,
-                frames[frame]
+        drawTungSprite(
+            playerCanvas,
+            game.player,
+            "attack"
+        );
+
+
+        battleMessage(
+            `⚔️ ${game.player.name} attacks!`
+        );
+
+
+        const rawDamage =
+            game.player.power +
+            random(0, 5);
+
+
+        const defenceReduction =
+            Math.floor(
+                enemy.defence *
+                0.35
             );
 
 
-            frame++;
+        const damage =
+            Math.max(
+                1,
+                rawDamage -
+                defenceReduction
+            );
 
 
-            if (
-                frame <
-                frames.length
-            ) {
-
-                setTimeout(
-                    next,
-                    180
-                );
-
-            }
-
-            else {
-
-                setTimeout(
-                    callback,
-                    120
-                );
-
-            }
-
-        }
+        enemyHP =
+            Math.max(
+                0,
+                enemyHP -
+                damage
+            );
 
 
-        next();
-
-    }
-
-
-    // ========================================================
-    // HURT ANIMATION
-    // ========================================================
-
-    function playHurt(
-        canvas,
-        tung,
-        callback
-    ) {
-
-        drawSprite(
-            canvas,
-            SPRITES.hurt
+        battleMessage(
+            `🟢 ${game.player.name} dealt ${damage} damage!`
         );
 
 
         setTimeout(
             () => {
 
-                drawEvolutionSprite(
-                    canvas,
-                    tung
+                battleMessage(
+                    `🔴 ${enemy.name} took ${damage} damage!`
                 );
 
 
-                if (callback) {
+                updateBattleUI();
 
-                    callback();
+
+                if (
+                    enemyHP <= 0
+                ) {
+
+                    finishBattle(
+                        true
+                    );
+
+
+                    return;
 
                 }
 
-            },
-            350
-        );
 
-    }
-
-
-    // ========================================================
-    // PLAYER ATTACK
-    // ========================================================
-
-    function playerAttack() {
-
-        if (finished) return;
-
-
-        const damage =
-            Math.max(
-
-                1,
-
-                game.player.power -
-
-                Math.floor(
-                    enemy.defence / 2
-                ) +
-
-                random(
-                    0,
-                    5
-                )
-
-            );
-
-
-        playAttack(
-
-            playerCanvas,
-
-            () => {
-
-                currentEnemyHP =
-                    Math.max(
-                        0,
-                        currentEnemyHP -
-                        damage
-                    );
-
-
-                battleMessage(
-                    `🟢 ${game.player.name} dealt ${damage} damage!`
-                );
+                playerTurn =
+                    false;
 
 
                 updateBattleUI();
 
 
                 setTimeout(
-                    () => {
-
-                        battleMessage(
-                            `🔴 ${enemy.name} took ${damage} damage!`
-                        );
-
-
-                        playHurt(
-                            enemyCanvas,
-                            enemy
-                        );
-
-
-                        updateBattleUI();
-
-
-                        if (
-                            currentEnemyHP <=
-                            0
-                        ) {
-
-                            setTimeout(
-                                finishBattle,
-                                500
-                            );
-
-                            return;
-
-                        }
-
-
-                        playerTurn =
-                            false;
-
-
-                        updateBattleUI();
-
-
-                        setTimeout(
-                            enemyAttack,
-                            600
-                        );
-
-                    },
-                    400
+                    enemyAttack,
+                    800
                 );
 
-            }
-
+            },
+            650
         );
 
     }
 
 
-    // ========================================================
-    // ENEMY ATTACK
-    // ========================================================
+    /*
+       ENEMY ATTACK
+    */
 
     function enemyAttack() {
 
-        if (finished) return;
+        if (
+            finished
+        ) {
+
+            return;
+
+        }
+
+
+        enemy.spriteRole =
+            "attack";
+
+
+        drawTungSprite(
+            enemyCanvas,
+            enemy,
+            "attack"
+        );
+
+
+        battleMessage(
+            `⚔️ ${enemy.name} attacks!`
+        );
+
+
+        /*
+           Speed dodge mechanic.
+
+           Faster players get a chance to dodge.
+        */
+
+        const speedDifference =
+            game.player.speed -
+            enemy.speed;
+
+
+        let dodgeChance =
+            0;
+
+
+        if (
+            speedDifference > 0
+        ) {
+
+            dodgeChance =
+                Math.min(
+                    40,
+                    speedDifference *
+                    2
+                );
+
+        }
+
+
+        if (
+            Math.random() *
+            100 <
+            dodgeChance
+        ) {
+
+            battleMessage(
+                `⚡ ${game.player.name} dodged the attack!`
+            );
+
+
+            playerTurn =
+                true;
+
+
+            updateBattleUI();
+
+
+            setTimeout(
+                playerAttack,
+                800
+            );
+
+
+            return;
+
+        }
+
+
+        const rawDamage =
+            enemy.power +
+            random(0, 5);
+
+
+        const defenceReduction =
+            Math.floor(
+                game.player.defence *
+                0.35
+            );
 
 
         const damage =
             Math.max(
-
                 1,
-
-                enemy.power -
-
-                Math.floor(
-                    game.player.defence / 2
-                ) +
-
-                random(
-                    0,
-                    5
-                )
-
+                rawDamage -
+                defenceReduction
             );
 
 
-        playAttack(
+        playerHP =
+            Math.max(
+                0,
+                playerHP -
+                damage
+            );
 
-            enemyCanvas,
 
+        battleMessage(
+            `🔴 ${enemy.name} dealt ${damage} damage!`
+        );
+
+
+        setTimeout(
             () => {
 
-                currentPlayerHP =
-                    Math.max(
-                        0,
-                        currentPlayerHP -
-                        damage
-                    );
-
-
                 battleMessage(
-                    `🔴 ${enemy.name} dealt ${damage} damage!`
+                    `🟢 ${game.player.name} took ${damage} damage!`
+                );
+
+
+                game.player.spriteRole =
+                    "hurt";
+
+
+                drawTungSprite(
+                    playerCanvas,
+                    game.player,
+                    "hurt"
                 );
 
 
                 updateBattleUI();
 
 
+                if (
+                    playerHP <= 0
+                ) {
+
+                    finishBattle(
+                        false
+                    );
+
+
+                    return;
+
+                }
+
+
+                playerTurn =
+                    true;
+
+
+                updateBattleUI();
+
+
                 setTimeout(
-                    () => {
-
-                        battleMessage(
-                            `🟢 ${game.player.name} took ${damage} damage!`
-                        );
-
-
-                        playHurt(
-                            playerCanvas,
-                            game.player
-                        );
-
-
-                        updateBattleUI();
-
-
-                        if (
-                            currentPlayerHP <=
-                            0
-                        ) {
-
-                            setTimeout(
-                                finishBattle,
-                                500
-                            );
-
-                            return;
-
-                        }
-
-
-                        playerTurn =
-                            true;
-
-
-                        updateBattleUI();
-
-
-                        setTimeout(
-                            playerAttack,
-                            600
-                        );
-
-                    },
-                    400
+                    playerAttack,
+                    800
                 );
 
-            }
-
+            },
+            650
         );
 
     }
 
 
-    // ========================================================
-    // FINISH BATTLE
-    // ========================================================
+    /*
+       FINISH BATTLE
+    */
 
-    function finishBattle() {
+    function finishBattle(
+        playerWon
+    ) {
 
-        if (finished) return;
+        if (
+            finished
+        ) {
+
+            return;
+
+        }
 
 
         finished =
@@ -2230,13 +2297,8 @@ function startFight(index) {
             false;
 
 
-        // ====================================================
-        // PLAYER WINS
-        // ====================================================
-
         if (
-            currentEnemyHP <=
-            0
+            playerWon
         ) {
 
             game.player.wins++;
@@ -2245,7 +2307,7 @@ function startFight(index) {
             game.player.hp =
                 Math.max(
                     1,
-                    currentPlayerHP
+                    playerHP
                 );
 
 
@@ -2253,203 +2315,380 @@ function startFight(index) {
                 0;
 
 
-            battleMessage(
-                `🏆 ${enemy.name} was defeated!`
+            enemy.lastAction =
+                "Defeated";
+
+
+            enemy.spriteRole =
+                "defeat";
+
+
+            drawTungSprite(
+                enemyCanvas,
+                enemy,
+                "defeat"
             );
 
 
             battleMessage(
-                `⭐ ${game.player.name} WON THE BATTLE!`
+                `🏆 ${game.player.name} defeated ${enemy.name}!`
             );
 
 
-            game.player.xp +=
-                40;
+            gainXP(40);
 
 
-            battleMessage(
-                `⭐ ${game.player.name} gained 40 XP!`
-            );
+            game.player.spriteRole =
+                "victory";
 
 
-            while (
-                game.player.xp >=
-                game.player.xpNeeded
-            ) {
-
-                game.player.xp -=
-                    game.player.xpNeeded;
-
-                levelUp();
-
-            }
-
-
-            drawSprite(
+            drawTungSprite(
                 playerCanvas,
-                SPRITES.victory[0]
+                game.player,
+                "victory"
             );
-
-
-            setTimeout(
-                () => {
-
-                    showResult(
-                        true,
-                        enemy.name
-                    );
-
-                },
-                1000
-            );
-
 
         }
-
-        // ====================================================
-        // PLAYER LOSES
-        // ====================================================
-
         else {
 
             game.player.hp =
-                Math.max(
-                    1,
-                    currentPlayerHP
-                );
+                1;
 
 
             enemy.hp =
-                enemyMax;
+                Math.max(
+                    1,
+                    enemyHP
+                );
 
 
             battleMessage(
-                `❌ ${game.player.name} lost the battle.`
+                `❌ ${enemy.name} defeated ${game.player.name}!`
             );
 
 
-            drawSprite(
+            game.player.spriteRole =
+                "defeat";
+
+
+            drawTungSprite(
                 playerCanvas,
-                SPRITES.defeat[0]
-            );
-
-
-            setTimeout(
-                () => {
-
-                    showResult(
-                        false,
-                        enemy.name
-                    );
-
-                },
-                1000
+                game.player,
+                "defeat"
             );
 
         }
+
+
+        updateBattleUI();
+
+
+        setTimeout(
+            () => {
+
+                closeModal();
+
+
+                game.turn =
+                    "ai";
+
+
+                /*
+                   Continue the AI round.
+                */
+
+                game.aiIndex++;
+
+
+                game.battleInProgress =
+                    false;
+
+
+                setTimeout(
+                    runNextAI,
+                    700
+                );
+
+            },
+            1600
+        );
 
     }
 
 
-    // ========================================================
-    // START BATTLE
-    // ========================================================
+    /*
+       Store the active battle so RUN can access it.
+    */
+
+    game.currentBattle = {
+
+        enemy: enemy,
+
+        getPlayerHP: () =>
+            playerHP,
+
+        getEnemyHP: () =>
+            enemyHP,
+
+        isFinished: () =>
+            finished,
+
+        getPlayerTurn: () =>
+            playerTurn,
+
+        enemyAttack: enemyAttack,
+
+        battleMessage: battleMessage
+
+    };
+
+
+    /*
+       Initial battle message.
+    */
+
+    battleMessage(
+        `⚔️ ${game.player.name} challenged ${enemy.name}!`
+    );
+
+
+    if (
+        game.player.speed >=
+        enemy.speed
+    ) {
+
+        battleMessage(
+            `⚡ ${game.player.name} is faster and attacks first!`
+        );
+
+    }
+    else {
+
+        battleMessage(
+            `⚡ ${enemy.name} is faster and attacks first!`
+        );
+
+    }
+
 
     updateBattleUI();
 
 
-    battleMessage(
-        `⚔️ ${game.player.name} VS ${enemy.name}!`
-    );
-
-
     setTimeout(
-        playerAttack,
-        800
+        () => {
+
+            if (
+                playerTurn
+            ) {
+
+                playerAttack();
+
+            }
+            else {
+
+                enemyAttack();
+
+            }
+
+        },
+        900
     );
 
 }
 
 
-// ============================================================
-// BATTLE RESULT
-// ============================================================
+/* ============================================================
+   RUN FROM BATTLE
+   ============================================================ */
 
-function showResult(
-    won,
-    enemyName
-) {
+function attemptRun() {
 
-    if (won) {
+    if (
+        !game.battleInProgress
+    ) {
 
-        showModal(
-
-            "🏆 VICTORY!",
-
-            `
-
-            <div class="result">
-
-                <div class="result-title">
-                    VICTORY!
-                </div>
-
-                <p>
-                    🟫 ${game.player.name}
-                    defeated
-                    ${enemyName}!
-                </p>
-
-                <p>
-                    ⭐ +40 XP
-                </p>
-
-                <button
-                    onclick="endBattle()"
-                >
-                    CONTINUE
-                </button>
-
-            </div>
-
-            `
-
-        );
+        return;
 
     }
 
+
+    const battle =
+        game.currentBattle;
+
+
+    if (
+        !battle
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        battle.isFinished()
+    ) {
+
+        return;
+
+    }
+
+
+    const player =
+        game.player;
+
+
+    const enemy =
+        battle.enemy;
+
+
+    /*
+       Running is available at ANY point.
+    */
+
+    battle.battleMessage(
+        `🏃 ${player.name} tries to escape!`
+    );
+
+
+    const difference =
+        player.speed -
+        enemy.speed;
+
+
+    let chance;
+
+
+    /*
+       Faster = better chance.
+    */
+
+    if (
+        difference > 0
+    ) {
+
+        chance =
+            Math.min(
+                95,
+                60 +
+                difference *
+                3
+            );
+
+    }
+    else if (
+        difference === 0
+    ) {
+
+        chance =
+            50;
+
+    }
     else {
 
-        showModal(
+        chance =
+            Math.max(
+                5,
+                50 +
+                difference *
+                3
+            );
 
-            "❌ DEFEAT",
+    }
 
-            `
 
-            <div class="result">
+    /*
+       Slight randomness.
+    */
 
-                <div
-                    class="result-title"
-                    style="color:#ef5555"
-                >
-                    DEFEAT
-                </div>
+    const roll =
+        Math.random() *
+        100;
 
-                <p>
-                    ${enemyName}
-                    won this battle.
-                </p>
 
-                <button
-                    onclick="endBattle()"
-                >
-                    CONTINUE
-                </button>
+    if (
+        roll < chance
+    ) {
 
-            </div>
+        battle.battleMessage(
+            `💨 ${player.name} successfully escaped!`
+        );
 
-            `
 
+        game.battleInProgress =
+            false;
+
+
+        game.currentBattle =
+            null;
+
+
+        player.hp =
+            Math.max(
+                1,
+                battle.getPlayerHP()
+            );
+
+
+        closeModal();
+
+
+        addLog(
+            `🏃 ${player.name} escaped from ${enemy.name}!`
+        );
+
+
+        /*
+           Running ends the player's action,
+           so AI continues.
+        */
+
+        game.turn =
+            "ai";
+
+
+        game.aiIndex++;
+
+
+        setTimeout(
+            runNextAI,
+            700
+        );
+
+    }
+    else {
+
+        battle.battleMessage(
+            `❌ ${player.name} failed to escape!`
+        );
+
+
+        if (
+            player.speed <
+            enemy.speed
+        ) {
+
+            battle.battleMessage(
+                `⚡ ${enemy.name} is faster!`
+            );
+
+        }
+        else {
+
+            battle.battleMessage(
+                `⚡ The escape attempt failed!`
+            );
+
+        }
+
+
+        /*
+           Failed escape gives enemy an immediate attack.
+        */
+
+        setTimeout(
+            battle.enemyAttack,
+            800
         );
 
     }
@@ -2457,52 +2696,19 @@ function showResult(
 }
 
 
-// ============================================================
-// END BATTLE
-// ============================================================
-
-function endBattle() {
-
-    closeModal();
-
-
-    game.turn =
-        "ai";
-
-
-    game.aiIndex =
-        0;
-
-
-    game.battleInProgress =
-        false;
-
-
-    addLog(
-        "🤖 The AI Tungs are taking their turns..."
-    );
-
-
-    updateUI();
-
-
-    setTimeout(
-        runNextAI,
-        700
-    );
-
-}
-
-
-// ============================================================
-// INVENTORY
-// ============================================================
+/* ============================================================
+   INVENTORY
+   ============================================================ */
 
 function openInventory() {
 
     if (
         game.turn !== "player"
-    ) return;
+    ) {
+
+        return;
+
+    }
 
 
     showModal(
@@ -2511,32 +2717,50 @@ function openInventory() {
 
         `
 
-        <button
-            class="item"
-            onclick="useItem('apple')"
-        >
+        <div class="items">
 
-            🍎 Apple
+            <button
+                class="item-button"
+                onclick="useItem('apple')"
+            >
 
-            <span>
-                x${game.inventory.apple}
-            </span>
+                🍎 Apple
 
-        </button>
+                <span>
+                    ${game.inventory.apple}
+                </span>
+
+            </button>
 
 
-        <button
-            class="item"
-            onclick="useItem('energyDrink')"
-        >
+            <button
+                class="item-button"
+                onclick="useItem('potion')"
+            >
 
-            ⚡ Energy Drink
+                ❤️ Health Potion
 
-            <span>
-                x${game.inventory.energyDrink}
-            </span>
+                <span>
+                    ${game.inventory.potion}
+                </span>
 
-        </button>
+            </button>
+
+
+            <button
+                class="item-button"
+                onclick="useItem('energyDrink')"
+            >
+
+                ⚡ Energy Drink
+
+                <span>
+                    ${game.inventory.energyDrink}
+                </span>
+
+            </button>
+
+        </div>
 
         `
 
@@ -2545,15 +2769,19 @@ function openInventory() {
 }
 
 
-// ============================================================
-// USE ITEM
-// ============================================================
+/* ============================================================
+   USE ITEM
+   ============================================================ */
 
 function useItem(item) {
 
     if (
         game.turn !== "player"
-    ) return;
+    ) {
+
+        return;
+
+    }
 
 
     if (
@@ -2562,91 +2790,127 @@ function useItem(item) {
     ) {
 
         addLog(
-            "❌ You don't have that item!"
+            "🎒 You don't have that item."
         );
+
 
         return;
 
     }
 
 
+    let used =
+        false;
+
+
     if (
         item === "apple"
     ) {
 
-        const before =
-            game.player.hp;
-
-
         game.player.hp =
-            Math.min(
-                game.player.maxHp,
-                game.player.hp + 25
+            clamp(
+                game.player.hp + 20,
+                0,
+                game.player.maxHp
             );
-
-
-        const recovered =
-            game.player.hp -
-            before;
 
 
         game.inventory.apple--;
 
 
         addLog(
-            `🍎 ${game.player.name} recovered ${recovered} HP!`
+            `🍎 ${game.player.name} ate an Apple and recovered HP.`
         );
+
+
+        used =
+            true;
 
     }
 
 
-    if (
-        item === "energyDrink"
+    else if (
+        item === "potion"
     ) {
 
-        const before =
-            game.player.energy;
-
-
-        game.player.energy =
-            Math.min(
-                game.player.maxEnergy,
-                game.player.energy + 40
+        game.player.hp =
+            clamp(
+                game.player.hp + 50,
+                0,
+                game.player.maxHp
             );
 
 
-        const recovered =
-            game.player.energy -
-            before;
+        game.inventory.potion--;
+
+
+        addLog(
+            `❤️ ${game.player.name} used a Health Potion.`
+        );
+
+
+        used =
+            true;
+
+    }
+
+
+    else if (
+        item === "energyDrink"
+    ) {
+
+        game.player.energy =
+            clamp(
+                game.player.energy + 50,
+                0,
+                game.player.maxEnergy
+            );
 
 
         game.inventory.energyDrink--;
 
 
         addLog(
-            `⚡ ${game.player.name} recovered ${recovered} Energy!`
+            `⚡ ${game.player.name} drank an Energy Drink.`
         );
+
+
+        used =
+            true;
 
     }
 
 
-    closeModal();
+    if (
+        used
+    ) {
+
+        closeModal();
 
 
-    finishPlayerTurn();
+        finishPlayerTurn();
+
+    }
+
+
+    updateUI();
 
 }
 
 
-// ============================================================
-// TRAVEL
-// ============================================================
+/* ============================================================
+   TRAVEL
+   ============================================================ */
 
 function openTravel() {
 
     if (
         game.turn !== "player"
-    ) return;
+    ) {
+
+        return;
+
+    }
 
 
     showModal(
@@ -2655,36 +2919,40 @@ function openTravel() {
 
         `
 
-        <button
-            class="location"
-            onclick="travel('Tung Town')"
-        >
-            🏘️ Tung Town
-        </button>
+        <div class="locations">
+
+            <button
+                class="location-button"
+                onclick="travel('Tung Town')"
+            >
+                🏠 Tung Town
+            </button>
 
 
-        <button
-            class="location"
-            onclick="travel('Tung Forest')"
-        >
-            🌲 Tung Forest
-        </button>
+            <button
+                class="location-button"
+                onclick="travel('Tung Forest')"
+            >
+                🌲 Tung Forest
+            </button>
 
 
-        <button
-            class="location"
-            onclick="travel('Tung Mountain')"
-        >
-            ⛰️ Tung Mountain
-        </button>
+            <button
+                class="location-button"
+                onclick="travel('Tung Mountains')"
+            >
+                ⛰️ Tung Mountains
+            </button>
 
 
-        <button
-            class="location"
-            onclick="travel('Tung Arena')"
-        >
-            🏟️ Tung Arena
-        </button>
+            <button
+                class="location-button"
+                onclick="travel('Tung Arena')"
+            >
+                🏟️ Tung Arena
+            </button>
+
+        </div>
 
         `
 
@@ -2693,15 +2961,19 @@ function openTravel() {
 }
 
 
-// ============================================================
-// TRAVEL
-// ============================================================
+/* ============================================================
+   TRAVEL ACTION
+   ============================================================ */
 
 function travel(location) {
 
     if (
         game.turn !== "player"
-    ) return;
+    ) {
+
+        return;
+
+    }
 
 
     game.player.location =
@@ -2725,9 +2997,9 @@ function travel(location) {
 }
 
 
-// ============================================================
-// LEADERBOARD SCORE
-// ============================================================
+/* ============================================================
+   LEADERBOARD SCORE
+   ============================================================ */
 
 function scoreFor(tung) {
 
@@ -2735,7 +3007,7 @@ function scoreFor(tung) {
 
         tung.level * 100 +
 
-        tung.wins * 75 +
+        tung.wins * 250 +
 
         tung.power * 5 +
 
@@ -2748,130 +3020,145 @@ function scoreFor(tung) {
 }
 
 
-// ============================================================
-// LEADERBOARD
-// ============================================================
+/* ============================================================
+   LEADERBOARD
+   ============================================================ */
 
 function openLeaderboard() {
 
-    const everyone = [
+    const all =
+        [
 
-        game.player,
+            {
+                ...game.player,
+                isPlayer: true
+            },
 
-        ...game.ais
+            ...game.ais
 
-    ];
+        ];
 
 
-    everyone.sort(
-        (a,b) =>
+    all.sort(
+        (a, b) =>
             scoreFor(b) -
             scoreFor(a)
     );
 
 
-    let html = "";
+    const rows =
+        all
+            .map(
+                (tung, index) => {
+
+                    let medal =
+                        `${index + 1}.`;
 
 
-    everyone.forEach(
-        (tung,index) => {
+                    if (
+                        index === 0
+                    ) {
 
-            let medal;
+                        medal =
+                            "🥇";
 
+                    }
+                    else if (
+                        index === 1
+                    ) {
 
-            if (
-                index === 0
-            ) {
+                        medal =
+                            "🥈";
 
-                medal = "🥇";
+                    }
+                    else if (
+                        index === 2
+                    ) {
 
-            }
+                        medal =
+                            "🥉";
 
-            else if (
-                index === 1
-            ) {
-
-                medal = "🥈";
-
-            }
-
-            else if (
-                index === 2
-            ) {
-
-                medal = "🥉";
-
-            }
-
-            else {
-
-                medal =
-                    `${index + 1}.`;
-
-            }
+                    }
 
 
-            html += `
+                    return `
 
-                <div
-                    class="leaderboard-row"
-                >
+                    <div class="leaderboard-row">
 
-                    <strong>
+                        <strong>
+                            ${medal}
+                        </strong>
 
-                        ${medal}
+                        <span>
 
-                        ${tung.shiny ? "✨ " : ""}
+                            ${escapeHTML(
+                                tung.name
+                            )}
 
-                        ${tung.name}
+                            ${
+                                tung.isPlayer
+                                    ? " 🟢 YOU"
+                                    : ""
+                            }
 
-                    </strong>
+                        </span>
 
-                    <span>
+                        <span>
+                            Lv ${tung.level}
+                        </span>
 
-                        ${getSpecies(tung.level)}
+                        <span>
+                            ${scoreFor(tung)}
+                        </span>
 
-                        • Lv.${tung.level}
+                    </div>
 
-                        • ${tung.wins} wins
+                    `;
 
-                        • ${scoreFor(tung)} pts
-
-                    </span>
-
-                </div>
-
-            `;
-
-        }
-    );
+                }
+            )
+            .join("");
 
 
     showModal(
 
-        `🏆 LEADERBOARD — ROUND ${game.round}`,
+        "🏆 LEADERBOARD",
 
-        html
+        `
+
+        <div class="leaderboard">
+
+            <div class="leaderboard-heading">
+
+                <span>Rank</span>
+                <span>Name</span>
+                <span>Level</span>
+                <span>Score</span>
+
+            </div>
+
+            ${rows}
+
+        </div>
+
+        `
 
     );
 
 }
 
 
-// ============================================================
-// SAVE GAME
-// ============================================================
+/* ============================================================
+   SAVE GAME
+   ============================================================ */
 
 function saveGame() {
 
     try {
 
         localStorage.setItem(
-
             "tungTangleSave",
-
             JSON.stringify(game)
-
         );
 
 
@@ -2880,8 +3167,10 @@ function saveGame() {
         );
 
     }
+    catch (error) {
 
-    catch {
+        console.error(error);
+
 
         addLog(
             "❌ Could not save the game."
@@ -2892,95 +3181,76 @@ function saveGame() {
 }
 
 
-// ============================================================
-// LOAD GAME
-// ============================================================
+/* ============================================================
+   LOAD GAME
+   ============================================================ */
 
 function loadGame() {
 
-    const saved =
-        localStorage.getItem(
-            "tungTangleSave"
-        );
-
-
-    if (!saved) {
-
-        addLog(
-            "❌ No saved game found."
-        );
-
-        return;
-
-    }
-
-
     try {
+
+        const saved =
+            localStorage.getItem(
+                "tungTangleSave"
+            );
+
+
+        if (!saved) {
+
+            addLog(
+                "📂 No saved game found."
+            );
+
+
+            return;
+
+        }
+
 
         const loaded =
             JSON.parse(saved);
 
 
-        if (
-            loaded.player
-        ) {
+        /*
+           Safe merge.
 
-            game.player =
-                {
+           This prevents older saves from
+           breaking newer versions.
+        */
 
-                    ...BASE_STATS,
+        game.player =
+            {
 
-                    ...game.player,
+                ...BASE_STATS,
 
-                    ...loaded.player
+                ...loaded.player
 
-                };
-
-        }
-
-
-        if (
-            loaded.inventory
-        ) {
-
-            game.inventory =
-                {
-
-                    ...game.inventory,
-
-                    ...loaded.inventory
-
-                };
-
-        }
+            };
 
 
-        if (
-            Array.isArray(
-                loaded.ais
-            )
-        ) {
+        game.inventory =
+            {
 
-            game.ais =
-                loaded.ais;
+                apple: 0,
+                potion: 0,
+                energyDrink: 0,
 
-        }
+                ...(loaded.inventory || {})
+
+            };
 
 
-        if (
-            Array.isArray(
-                loaded.log
-            )
-        ) {
+        game.ais =
+            loaded.ais ||
+            [];
 
-            game.log =
-                loaded.log;
 
-        }
+        game.log =
+            loaded.log ||
+            [];
 
 
         game.turn =
-            loaded.turn ||
             "player";
 
 
@@ -2990,17 +3260,18 @@ function loadGame() {
 
 
         game.aiIndex =
-            loaded.aiIndex ||
             0;
-
-
-        game.round =
-            loaded.round ||
-            1;
 
 
         game.battleInProgress =
             false;
+
+
+        game.currentBattle =
+            null;
+
+
+        checkEvolution();
 
 
         addLog(
@@ -3011,11 +3282,13 @@ function loadGame() {
         updateUI();
 
     }
+    catch (error) {
 
-    catch {
+        console.error(error);
+
 
         addLog(
-            "❌ The save file is corrupted."
+            "❌ Save file could not be loaded."
         );
 
     }
@@ -3023,546 +3296,631 @@ function loadGame() {
 }
 
 
-// ============================================================
-// UPDATE UI
-// ============================================================
+/* ============================================================
+   DRAW SPRITE
+   ============================================================ */
+
+function drawTungSprite(
+    canvas,
+    tung,
+    temporaryRole = null
+) {
+
+    if (!canvas) return;
+
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    let role =
+        temporaryRole ||
+        tung.spriteRole ||
+        "normal";
+
+
+    /*
+       Evolution always overrides ordinary
+       action sprites when necessary.
+    */
+
+    if (
+        tung.shiny &&
+        tung.level >= 10 &&
+        !temporaryRole
+    ) {
+
+        role =
+            "shinyAlpha";
+
+    }
+    else if (
+        tung.level >= 10 &&
+        !temporaryRole
+    ) {
+
+        role =
+            "alpha";
+
+    }
+    else if (
+        tung.level >= 5 &&
+        !temporaryRole
+    ) {
+
+        role =
+            "mega";
+
+    }
+
+
+    const sprite =
+        SPRITES[role] ||
+        SPRITES.normal;
+
+
+    if (
+        !spriteSheet.complete ||
+        spriteSheet.naturalWidth === 0
+    ) {
+
+        drawFallbackTung(
+            canvas,
+            tung,
+            role
+        );
+
+
+        return;
+
+    }
+
+
+    ctx.imageSmoothingEnabled =
+        false;
+
+
+    /*
+       32x32 output.
+
+       This is what gives the game
+       the pixel-art 32x32 appearance.
+    */
+
+    ctx.drawImage(
+
+        spriteSheet,
+
+        sprite.x,
+        sprite.y,
+        sprite.w,
+        sprite.h,
+
+        0,
+        0,
+        32,
+        32
+
+    );
+
+}
+
+
+/* ============================================================
+   FALLBACK SPRITE
+   ============================================================ */
+
+function drawFallbackTung(
+    canvas,
+    tung,
+    role
+) {
+
+    const ctx =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        32,
+        32
+    );
+
+
+    ctx.imageSmoothingEnabled =
+        false;
+
+
+    /*
+       Simple fallback so the game
+       never shows a broken image.
+    */
+
+    let body =
+        "#9a4d20";
+
+
+    if (
+        role === "mega"
+    ) {
+
+        body =
+            "#c66b25";
+
+    }
+
+
+    if (
+        role === "alpha"
+    ) {
+
+        body =
+            "#9a3b1e";
+
+    }
+
+
+    if (
+        role === "shinyAlpha"
+    ) {
+
+        body =
+            "#ffd83d";
+
+    }
+
+
+    if (
+        role === "speed"
+    ) {
+
+        body =
+            "#258ac7";
+
+    }
+
+
+    if (
+        role === "power"
+    ) {
+
+        body =
+            "#d64b28";
+
+    }
+
+
+    if (
+        role === "defence"
+    ) {
+
+        body =
+            "#7d6b3c";
+
+    }
+
+
+    ctx.fillStyle =
+        body;
+
+
+    ctx.fillRect(
+        9,
+        5,
+        14,
+        22
+    );
+
+
+    ctx.fillStyle =
+        "#111";
+
+
+    ctx.fillRect(
+        11,
+        10,
+        3,
+        4
+    );
+
+
+    ctx.fillRect(
+        18,
+        10,
+        3,
+        4
+    );
+
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.fillRect(
+        11,
+        9,
+        3,
+        3
+    );
+
+
+    ctx.fillRect(
+        18,
+        9,
+        3,
+        3
+    );
+
+
+    ctx.fillStyle =
+        "#222";
+
+
+    ctx.fillRect(
+        14,
+        22,
+        5,
+        2
+    );
+
+}
+
+
+/* ============================================================
+   UPDATE UI
+   ============================================================ */
 
 function updateUI() {
+
+    updatePlayerUI();
+
+    updateAIUI();
+
+    updateLog();
+
+    updateTurnUI();
+
+    updateActionButtons();
+
+}
+
+
+/* ============================================================
+   PLAYER UI
+   ============================================================ */
+
+function updatePlayerUI() {
 
     const p =
         game.player;
 
 
-    const name =
-        document.getElementById(
-            "tung-name"
-        );
+    setText(
+        "tung-name",
+        p.name
+    );
 
 
-    const species =
-        document.getElementById(
-            "species"
-        );
+    setText(
+        "species",
+        p.shiny
+            ? "✨ Shiny Alpha Tung"
+            : p.species
+    );
 
 
-    const level =
-        document.getElementById(
-            "level"
-        );
+    setText(
+        "level",
+        p.level
+    );
 
 
-    if (name) {
+    setText(
+        "power",
+        p.power
+    );
 
-        name.textContent =
-            p.name;
 
-    }
+    setText(
+        "defence",
+        p.defence
+    );
 
 
-    if (species) {
+    setText(
+        "speed",
+        p.speed
+    );
 
-        species.textContent =
-            p.shiny && p.level >= 10
-                ? "✨ Shiny Alpha Tung"
-                : getSpecies(p.level);
 
-    }
+    setText(
+        "wins",
+        p.wins
+    );
 
 
-    if (level) {
+    setText(
+        "day",
+        p.day
+    );
 
-        level.textContent =
-            p.level;
 
-    }
+    setText(
+        "location",
+        p.location
+    );
 
 
-    const hpText =
-        document.getElementById(
-            "hp-text"
-        );
+    setText(
+        "hp-text",
+        `${p.hp} / ${p.maxHp}`
+    );
 
 
-    const energyText =
-        document.getElementById(
-            "energy-text"
-        );
+    setText(
+        "energy-text",
+        `${p.energy} / ${p.maxEnergy}`
+    );
 
 
-    const xpText =
-        document.getElementById(
-            "xp-text"
-        );
+    setText(
+        "xp-text",
+        `${p.xp} / 100`
+    );
 
 
-    if (hpText) {
+    setBar(
+        "hp-bar",
+        p.hp /
+        p.maxHp *
+        100
+    );
 
-        hpText.textContent =
-            `${p.hp} / ${p.maxHp}`;
 
-    }
+    setBar(
+        "energy-bar",
+        p.energy /
+        p.maxEnergy *
+        100
+    );
 
 
-    if (energyText) {
+    setBar(
+        "xp-bar",
+        p.xp /
+        100 *
+        100
+    );
 
-        energyText.textContent =
-            `${p.energy} / ${p.maxEnergy}`;
+}
 
-    }
 
+/* ============================================================
+   AI UI
+   ============================================================ */
 
-    if (xpText) {
+function updateAIUI() {
 
-        xpText.textContent =
-            `${p.xp} / ${p.xpNeeded}`;
-
-    }
-
-
-    const power =
-        document.getElementById(
-            "power"
-        );
-
-
-    const defence =
-        document.getElementById(
-            "defence"
-        );
-
-
-    const speed =
-        document.getElementById(
-            "speed"
-        );
-
-
-    const wins =
-        document.getElementById(
-            "wins"
-        );
-
-
-    if (power)
-        power.textContent =
-            p.power;
-
-
-    if (defence)
-        defence.textContent =
-            p.defence;
-
-
-    if (speed)
-        speed.textContent =
-            p.speed;
-
-
-    if (wins)
-        wins.textContent =
-            p.wins;
-
-
-    const location =
-        document.getElementById(
-            "location"
-        );
-
-
-    const round =
-        document.getElementById(
-            "round"
-        );
-
-
-    const turnNumber =
-        document.getElementById(
-            "turn-number"
-        );
-
-
-    if (location)
-        location.textContent =
-            p.location;
-
-
-    if (round)
-        round.textContent =
-            game.round;
-
-
-    if (turnNumber)
-        turnNumber.textContent =
-            game.turnNumber;
-
-
-    // ========================================================
-    // BARS
-    // ========================================================
-
-    const hpBar =
-        document.getElementById(
-            "hp-bar"
-        );
-
-
-    const energyBar =
-        document.getElementById(
-            "energy-bar"
-        );
-
-
-    const xpBar =
-        document.getElementById(
-            "xp-bar"
-        );
-
-
-    if (hpBar) {
-
-        hpBar.style.width =
-            `${Math.max(
-                0,
-                p.hp /
-                p.maxHp *
-                100
-            )}%`;
-
-    }
-
-
-    if (energyBar) {
-
-        energyBar.style.width =
-            `${Math.max(
-                0,
-                p.energy /
-                p.maxEnergy *
-                100
-            )}%`;
-
-    }
-
-
-    if (xpBar) {
-
-        xpBar.style.width =
-            `${Math.max(
-                0,
-                p.xp /
-                p.xpNeeded *
-                100
-            )}%`;
-
-    }
-
-
-    // ========================================================
-    // PLAYER SPRITE
-    // ========================================================
-
-    const playerCanvas =
-        document.getElementById(
-            "player-sprite"
-        );
-
-
-    if (playerCanvas) {
-
-        drawTungSprite(
-            playerCanvas,
-            p
-        );
-
-    }
-
-
-    // ========================================================
-    // TURN PANEL
-    // ========================================================
-
-    const panel =
-        document.getElementById(
-            "turn-panel"
-        );
-
-
-    const icon =
-        document.getElementById(
-            "turn-icon"
-        );
-
-
-    const title =
-        document.getElementById(
-            "turn-title"
-        );
-
-
-    const description =
-        document.getElementById(
-            "turn-description"
-        );
-
-
-    if (
-        game.turn === "player"
-    ) {
-
-        if (panel)
-            panel.className =
-                "turn-panel turn-player";
-
-
-        if (icon)
-            icon.textContent =
-                "🟢";
-
-
-        if (title)
-            title.textContent =
-                "YOUR TURN";
-
-
-        if (description)
-            description.textContent =
-                "Choose an action.";
-
-    }
-
-    else if (
-        game.turn === "ai"
-    ) {
-
-        if (panel)
-            panel.className =
-                "turn-panel turn-ai";
-
-
-        if (icon)
-            icon.textContent =
-                "🤖";
-
-
-        const ai =
-            game.ais[
-                game.aiIndex
-            ];
-
-
-        if (ai) {
-
-            if (title)
-                title.textContent =
-                    `${ai.name.toUpperCase()}'S TURN`;
-
-
-            if (description)
-                description.textContent =
-                    "The AI is choosing an action.";
-
-        }
-
-    }
-
-    else {
-
-        if (panel)
-            panel.className =
-                "turn-panel turn-ai";
-
-
-        if (icon)
-            icon.textContent =
-                "⚔️";
-
-
-        if (title)
-            title.textContent =
-                "BATTLE";
-
-
-        if (description)
-            description.textContent =
-                "A battle is taking place.";
-
-    }
-
-
-    // ========================================================
-    // DISABLE ACTION BUTTONS
-    // ========================================================
-
-    document
-        .querySelectorAll(
-            ".action-button"
-        )
-        .forEach(
-            button => {
-
-                button.disabled =
-                    game.turn !== "player" ||
-                    game.battleInProgress;
-
-            }
-        );
-
-
-    // ========================================================
-    // AI COUNT
-    // ========================================================
-
-    const aiCount =
-        document.getElementById(
-            "ai-count"
-        );
-
-
-    if (aiCount) {
-
-        aiCount.textContent =
-            `(${game.ais.length})`;
-
-    }
-
-
-    // ========================================================
-    // AI LIST
-    // ========================================================
-
-    const aiList =
+    const list =
         document.getElementById(
             "ai-list"
         );
 
 
-    if (!aiList) return;
+    if (!list) return;
 
 
-    aiList.innerHTML =
+    list.innerHTML =
         game.ais
             .map(
-                (ai,index) => {
+                (ai, index) => `
 
-                    const active =
-                        game.turn === "ai" &&
-                        index ===
-                        game.aiIndex;
+                <div
+                    class="ai"
+                    data-index="${index}"
+                >
 
-
-                    return `
-
-                        <div
-                            class="ai ${
-                                active
-                                    ? "active"
-                                    : ""
-                            }"
-                        >
-
-                            <div class="ai-top">
-
-                                <canvas
-                                    class="ai-sprite"
-                                    width="32"
-                                    height="32"
-                                    data-index="${index}"
-                                ></canvas>
+                    <canvas
+                        width="32"
+                        height="32"
+                        class="ai-sprite"
+                    ></canvas>
 
 
-                                <span class="ai-name">
+                    <div class="ai-info">
 
-                                    ${ai.shiny ? "✨ " : ""}
+                        <strong>
+                            ${escapeHTML(
+                                ai.name
+                            )}
+                        </strong>
 
-                                    ${ai.name}
-
-                                </span>
-
-
-                                <span>
-
-                                    Lv.${ai.level}
-
-                                </span>
-
-                            </div>
+                        <span>
+                            ${ai.species}
+                            •
+                            Lv ${ai.level}
+                        </span>
 
 
-                            <div class="ai-stats">
-
-                                ❤️ ${ai.hp}/${ai.maxHp}
-
-                                &nbsp;
-
-                                💪 ${ai.power}
-
-                                &nbsp;
-
-                                🛡️ ${ai.defence}
-
-                                &nbsp;
-
-                                ⚡ ${ai.speed}
-
-                            </div>
+                        <span>
+                            ❤️ ${ai.hp}/${ai.maxHp}
+                        </span>
 
 
-                            <div class="ai-action">
+                        <span>
+                            💪 ${ai.power}
+                            🛡️ ${ai.defence}
+                            ⚡ ${ai.speed}
+                        </span>
 
-                                ${ai.lastAction}
 
-                            </div>
+                        <small class="ai-action">
+                            ${escapeHTML(
+                                ai.lastAction ||
+                                "Waiting..."
+                            )}
+                        </small>
 
-                        </div>
+                    </div>
 
-                    `;
+                </div>
 
-                }
+                `
             )
             .join("");
 
 
-    // ========================================================
-    // DRAW AI SPRITES
-    // ========================================================
+    /*
+       Draw every AI sprite.
+    */
 
-    document
-        .querySelectorAll(
-            ".ai-sprite"
-        )
-        .forEach(
-            canvas => {
+    game.ais.forEach(
+        (ai, index) => {
 
-                const index =
-                    Number(
-                        canvas.dataset.index
-                    );
+            const element =
+                document.querySelector(
+                    `.ai[data-index="${index}"] canvas`
+                );
 
 
-                const ai =
-                    game.ais[index];
-
-
-                if (!ai) return;
-
+            if (element) {
 
                 drawTungSprite(
-                    canvas,
+                    element,
                     ai
                 );
 
             }
-        );
+
+        }
+    );
 
 
-    updateLog();
+    highlightAI(
+        game.aiIndex
+    );
 
 }
 
 
-// ============================================================
-// MODAL
-// ============================================================
+/* ============================================================
+   TURN UI
+   ============================================================ */
+
+function updateTurnUI() {
+
+    if (
+        game.turn === "player"
+    ) {
+
+        setTurn(
+            "player"
+        );
+
+    }
+    else if (
+        game.turn === "ai"
+    ) {
+
+        setTurn(
+            "ai"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   ACTION BUTTONS
+   ============================================================ */
+
+function updateActionButtons() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".action-button"
+        );
+
+
+    const enabled =
+        game.turn === "player" &&
+        !game.battleInProgress;
+
+
+    buttons.forEach(
+        button => {
+
+            button.disabled =
+                !enabled;
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   DOM HELPERS
+   ============================================================ */
+
+function setText(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+function setBar(
+    id,
+    percent
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) return;
+
+
+    element.style.width =
+        `${clamp(
+            percent,
+            0,
+            100
+        )}%`;
+
+}
+
+
+/* ============================================================
+   MODAL
+   ============================================================ */
 
 function showModal(
     title,
@@ -3590,7 +3948,7 @@ function showModal(
     if (!modal) return;
 
 
-    modalTitle.textContent =
+    modalTitle.innerHTML =
         title;
 
 
@@ -3613,41 +3971,295 @@ function closeModal() {
         );
 
 
-    if (modal) {
+    if (!modal) return;
 
-        modal.classList.add(
-            "hidden"
-        );
+
+    modal.classList.add(
+        "hidden"
+    );
+
+
+    /*
+       Do not accidentally end
+       an active battle here.
+    */
+
+    if (
+        !game.battleInProgress
+    ) {
+
+        game.currentBattle =
+            null;
 
     }
 
 }
 
 
-// ============================================================
-// SPRITE SHEET ERROR CHECK
-// ============================================================
+/* ============================================================
+   NEW GAME
+   ============================================================ */
 
-spriteImage.onerror = () => {
+function newGame() {
 
-    console.error(
-        "TUNG TANGLE: spritesheet.png could not be loaded."
+    const name =
+        prompt(
+            "Choose your Tung's name:",
+            "Chomper"
+        );
+
+
+    game.player =
+        {
+
+            ...BASE_STATS,
+
+            name:
+                name &&
+                name.trim()
+                    ? name
+                        .trim()
+                        .substring(0, 18)
+                    : "Chomper"
+
+        };
+
+
+    game.inventory =
+        {
+
+            apple: 2,
+
+            potion: 1,
+
+            energyDrink: 1
+
+        };
+
+
+    game.log =
+        [];
+
+
+    game.turn =
+        "player";
+
+
+    game.turnNumber =
+        1;
+
+
+    game.aiIndex =
+        0;
+
+
+    game.battleInProgress =
+        false;
+
+
+    game.currentBattle =
+        null;
+
+
+    createAIs();
+
+
+    addLog(
+        `🐸 Welcome to Tung Tangle, ${game.player.name}!`
     );
 
 
     addLog(
-        "❌ ERROR: spritesheet.png could not be found."
+        "📊 Every Tung starts with the same base stats."
     );
 
-};
+
+    addLog(
+        "💪 Train your stats to become stronger."
+    );
 
 
-// ============================================================
-// START WHEN IMAGE IS READY
-// ============================================================
+    updateUI();
 
-spriteImage.onload = () => {
+}
 
-    startGame();
 
-};
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+
+function initGame() {
+
+    if (
+        game.initialized
+    ) {
+
+        return;
+
+    }
+
+
+    game.initialized =
+        true;
+
+
+    /*
+       Ask for name on first launch.
+
+       If an existing save exists, don't
+       overwrite it automatically.
+    */
+
+    const existing =
+        localStorage.getItem(
+            "tungTangleSave"
+        );
+
+
+    if (
+        existing
+    ) {
+
+        try {
+
+            const saved =
+                JSON.parse(
+                    existing
+                );
+
+
+            if (
+                saved.player &&
+                saved.player.name
+            ) {
+
+                game.player =
+                    {
+
+                        ...BASE_STATS,
+
+                        ...saved.player
+
+                    };
+
+
+                game.inventory =
+                    {
+
+                        apple: 0,
+
+                        potion: 0,
+
+                        energyDrink: 0,
+
+                        ...(saved.inventory || {})
+
+                    };
+
+
+                game.ais =
+                    saved.ais ||
+                    [];
+
+
+                game.log =
+                    saved.log ||
+                    [];
+
+
+                game.turn =
+                    "player";
+
+
+                game.turnNumber =
+                    saved.turnNumber ||
+                    1;
+
+
+                game.aiIndex =
+                    0;
+
+
+                checkEvolution();
+
+
+                addLog(
+                    "📂 Saved game detected."
+                );
+
+
+                addLog(
+                    "🟢 Your turn."
+                );
+
+
+                updateUI();
+
+
+                return;
+
+            }
+
+        }
+        catch (error) {
+
+            console.warn(
+                "Save data was invalid."
+            );
+
+        }
+
+    }
+
+
+    newGame();
+
+}
+
+
+/* ============================================================
+   KEYBOARD SHORTCUT
+   ============================================================ */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        /*
+           Escape closes menus but not
+           an active battle.
+        */
+
+        if (
+            event.key === "Escape" &&
+            !game.battleInProgress
+        ) {
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   START
+   ============================================================ */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initGame
+    );
+
+}
+else {
+
+    initGame();
+
+}
